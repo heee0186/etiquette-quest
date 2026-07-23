@@ -1109,7 +1109,15 @@
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr><th>날짜</th><th>참여자</th><th>개인 목표</th><th>좋은 행동 발견</th><th>공동 목표</th><th>포인트</th></tr>
+                    <tr>
+                      <th>날짜</th>
+                      <th>참여자</th>
+                      <th>개인 목표</th>
+                      <th>좋은 행동 발견</th>
+                      <th>공동 목표</th>
+                      <th>포인트</th>
+                      <th>관리</th>
+                    </tr>  
                   </thead>
                   <tbody id="recordsBody"></tbody>
                 </table>
@@ -2038,8 +2046,8 @@
       const personalPoints = {practiced:3,partial:2,retry:1}[draft.personalStatus] || 0;
       const commonPoints = {lead:2,together:2,reminded:1,retry:1}[draft.commonStatus] || 0;
       const praisePoints = draft.praiseCategory ? 1 : 0;
-      const completion = 1;
-      return personalPoints + commonPoints + praisePoints + completion;
+      const participationPoints = 16;
+      return personalPoints + commonPoints + praisePoints + participationPoints;
     }
 
     function secureRandomInt(max){
@@ -2694,9 +2702,52 @@
           <td><b>${escapeHtml(personalLabel(e.personalStatus))}</b><br><small>${escapeHtml(e.secretGoalSnapshot||'')}</small>${e.personalReason?`<br><small>아쉬웠던 점: ${escapeHtml(e.personalReason)}</small>`:''}</td>
           <td>${escapeHtml(e.praiseCategory||'-')}${praised?`<br><small>${escapeHtml(praised.name)}</small>`:''}${e.praiseNote?`<br><small>${escapeHtml(e.praiseNote)}</small>`:''}</td>
           <td>${escapeHtml(commonLabel(e.commonStatus))}</td>
-          <td><b>${e.points}점</b>${e.bonusPoints?`<br><small>${escapeHtml(e.bonusCard||'보너스')} +${e.bonusPoints}</small>`:''}</td>
+          <td>
+            <b>${e.points}점</b>
+            ${e.bonusPoints
+              ? `<br><small>${escapeHtml(e.bonusCard||'보너스')} +${e.bonusPoints}</small>`
+              : ''}
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn small danger"
+              data-delete-record="${escapeHtml(e.id)}"
+            >
+              삭제
+            </button>
+          </td>
         </tr>`;
-      }).join('') : '<tr><td colspan="6" class="empty">조건에 맞는 기록이 없어요.</td></tr>';
+      }).join('') : '<tr><td colspan="7" class="empty">조건에 맞는 기록이 없어요.</td></tr>';
+
+      document.querySelectorAll('[data-delete-record]').forEach(button => {
+        button.addEventListener('click', () => {
+          const recordId = button.dataset.deleteRecord;
+          const entry = state.entries.find(e => e.id === recordId);
+      
+          if (!entry) {
+            toast('삭제할 기록을 찾지 못했어.');
+            return;
+          }
+      
+          const participant = participantById(entry.participantId);
+          const participantName = participant?.name || '삭제된 참여자';
+      
+          const confirmed = confirm(
+            `${entry.date} ${participantName}의 기록을 삭제할까요?\n\n` +
+            `해당 기록의 ${entry.points}점도 총점에서 빠져.`
+          );
+      
+          if (!confirmed) return;
+      
+          state.entries = state.entries.filter(e => e.id !== recordId);
+      
+          saveState();
+          renderAdmin();
+          toast('해당 기록만 삭제했어.');
+        });
+      });
+      
     }
 
     function categoryCounts(){
