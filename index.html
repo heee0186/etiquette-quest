@@ -650,6 +650,25 @@
       .print-only{display:block !important}
       .print-only table{min-width:0}
     }
+
+          /* iPad Safari 빠른 연속 터치 시 더블탭 확대 방지 */
+      html,
+      body{
+        touch-action: manipulation;
+      }
+      
+      /* 게임과 버튼을 빠르게 눌러도 확대되지 않게 */
+      button,
+      [role="button"],
+      .generic-game-area,
+      .balloon-btn,
+      .falling-star,
+      .memory-pad,
+      .number-tile,
+      #dodgeCanvas{
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
   </style>
 </head>
 <body>
