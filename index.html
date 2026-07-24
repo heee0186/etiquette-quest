@@ -327,6 +327,10 @@
     .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
     .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
     label.field{display:block;font-weight:800;font-size:14px}
+    /* 2단계의 누가 / 언제·어디서 / 어떤 행동 글씨만 크게 */
+      #step2 .grid.three label.field{
+        font-size:18px;
+      }
     .field input,.field select,.field textarea{
       width:100%;margin-top:7px;border:1px solid var(--line);background:white;
       border-radius:14px;padding:12px 13px;color:var(--ink);outline:none;
@@ -851,6 +855,16 @@
             <strong id="checkinCommonGoal"></strong>
           </div>
           <div class="choice-grid" id="commonChoices"></div>
+          <label class="field" style="margin-top:14px">
+            공동 목표를 어떻게 실천했는지 적어보세요
+            <span style="font-weight:500;color:var(--muted)">(선택)</span>
+
+            <textarea
+              id="commonNote"
+              maxlength="180"
+              placeholder=""
+            ></textarea>
+          </label>
         </div>
 
         <div id="step4" class="hidden">
@@ -1992,6 +2006,7 @@
         praiseWhenWhere:'',
         praiseNote:'',
         commonStatus:'',
+        commonNote:'',
         tomorrowAction:'',
         reflectionNote:''
       };
@@ -2036,6 +2051,7 @@
       ).join('');
 
       $('praiseNote').value='';
+      $('commonNote').value='';
       $('reflectionNote').value='';
       $('personalReason').value='';
       $('personalReasonWrap').classList.add('hidden');
@@ -2103,8 +2119,13 @@
           return false;
         }
       }
-      if(currentStep===3 && !draft.commonStatus){
-        toast('공동 목표에 어떻게 참여했는지 골라주세요.'); return false;
+      if(currentStep===3){
+        if(!draft.commonStatus){
+          toast('공동 목표에 어떻게 참여했는지 골라주세요.');
+          return false;
+        }
+
+        draft.commonNote = $('commonNote').value.trim();
       }
       if(currentStep===4){
         draft.tomorrowAction = $('tomorrowAction').value;
@@ -2794,7 +2815,14 @@
               : ''
             }
           </td>
-          <td>${escapeHtml(commonLabel(e.commonStatus))}</td>
+          <td>
+            <b>${escapeHtml(commonLabel(e.commonStatus))}</b>
+
+            ${e.commonNote
+              ? `<br><small>${escapeHtml(e.commonNote)}</small>`
+              : ''
+            }
+          </td>
           <td>
             <b>${e.points}점</b>
             ${e.bonusPoints
@@ -2916,6 +2944,7 @@
           '어떤 행동',
           '추가 이야기',
           '공동목표결과',
+          '공동목표실천내용',
           '내일계획',
           '한줄기록',
           '보너스카드',
@@ -2929,7 +2958,7 @@
         return [
           e.date,p?.name||'',p?.role||'',e.secretGoalSnapshot||'',personalLabel(e.personalStatus),e.personalReason||'',
           praised?.name || e.praisedPersonId || '',e.praiseWhenWhere || '',e.praiseCategory || '',e.praiseNote || '',commonLabel(e.commonStatus),
-          e.tomorrowAction||'',e.reflectionNote||'',e.bonusCard||'',e.bonusPoints||0,e.points
+          e.commonNote||'',e.tomorrowAction||'',e.reflectionNote||'',e.bonusCard||'',e.bonusPoints||0,e.points
         ].map(csvEscape).join(',');
       });
       download(`예절실천퀘스트_기록_${state.settings.activeDate}.csv`,'\uFEFF'+[headers.map(csvEscape).join(','),...rows].join('\n'),'text/csv;charset=utf-8');
