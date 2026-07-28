@@ -1195,6 +1195,7 @@
                       <th>개인 목표</th>
                       <th>좋은 행동 발견</th>
                       <th>공동 목표</th>
+                      <th>내일 계획</th>
                       <th>포인트</th>
                       <th>관리</th>
                     </tr>  
@@ -2823,15 +2824,23 @@
             }
           </td>
           <td>
-            <b>${escapeHtml(commonLabel(e.commonStatus))}</b>
-
-            ${e.commonNote
-              ? `<br><small>${escapeHtml(e.commonNote)}</small>`
-              : ''
-            }
-          </td>
-          <td>
-            <b>${e.points}점</b>
+              <b>${escapeHtml(commonLabel(e.commonStatus))}</b>
+            
+              ${e.commonNote
+                ? `<br><small>${escapeHtml(e.commonNote)}</small>`
+                : ''
+              }
+            </td>
+            
+            <td>
+              ${e.tomorrowAction
+                ? escapeHtml(e.tomorrowAction)
+                : '-'
+              }
+            </td>
+            
+            <td>
+              <b>${e.points}점</b>
             ${e.bonusPoints
               ? `<br><small>${escapeHtml(e.bonusCard||'보너스')} +${e.bonusPoints}</small>`
               : ''}
@@ -2846,7 +2855,7 @@
             </button>
           </td>
         </tr>`;
-      }).join('') : '<tr><td colspan="7" class="empty">조건에 맞는 기록이 없어요.</td></tr>';
+      }).join('') : '<tr><td colspan="8" class="empty">조건에 맞는 기록이 없어요.</td></tr>';
 
       document.querySelectorAll('[data-delete-record]').forEach(button => {
         button.addEventListener('click', () => {
