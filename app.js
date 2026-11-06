@@ -138,7 +138,7 @@
         promiseTitle: '우리 반 예절 약속',
     };
     // 홈 화면 '며칠차' 표시: 교사 설정의 시작일·종료일로 자동 계산돼요
-    const DAY_LABEL = { prefix: '합숙', before: '활동 시작 전', after: '활동 종료' };
+    const DAY_LABEL = { prefix: '교학', before: '활동 시작 전', after: '활동 종료' };
     // 수상한 상인 보상 이모지(간식·쿠폰): 바꾸려면 여기만 고치면 돼요. 그림 아이콘은 바로 아래 ICON_ASSETS(images 폴더)
     const MYSTERY_ICONS = { snack: '🍪', coupon: '⏱️' };
     // 보물상자 보상 기본 켜짐/꺼짐
@@ -1296,7 +1296,7 @@
     function showPromiseMaker(afterDone) {
         const cur = state.promises || [];
         const inputs = Array.from({ length: PROMISE_COUNT }, (_, i) => `<label class="promise-input"><span>${i + 1}</span><input data-promise="${i}" maxlength="60" value="${esc(cur[i] || '')}" placeholder="${['예: 먼저 밝게 인사하기', '예: 친구 말을 끝까지 듣기', '예: 도움이 필요한 친구에게 먼저 묻기'][i] || '우리 반 약속'}"></label>`).join('');
-        showEventPopup('🤝', UI_TEXT.promiseTitle + ' 만들기', `이번 모험에서 배운 것을 바탕으로<br><b>합숙이 끝나도 지키고 싶은 약속</b>을 함께 정해 보세요.<div class="promise-inputs">${inputs}</div><div class="event-note">하나 이상 적으면 저장할 수 있어요. 나중에 모험 지도 화면에서 고칠 수 있어요.</div>`, `<button class="secondary" id="promiseLater">나중에 정할게요</button><button class="primary" id="promiseSave">약속 저장</button>`);
+        showEventPopup('🤝', UI_TEXT.promiseTitle + ' 만들기', `이번 모험에서 배운 것을 바탕으로<br><b>정규 교학이 끝나도 지키고 싶은 약속</b>을 함께 정해 보세요.<div class="promise-inputs">${inputs}</div><div class="event-note">하나 이상 적으면 저장할 수 있어요. 나중에 모험 지도 화면에서 고칠 수 있어요.</div>`, `<button class="secondary" id="promiseLater">나중에 정할게요</button><button class="primary" id="promiseSave">약속 저장</button>`);
         const done = () => { closeEventPopup(); if (typeof afterDone === 'function')
             setTimeout(afterDone, 180); };
         setTimeout(() => {
