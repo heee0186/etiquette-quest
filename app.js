@@ -20,6 +20,14 @@
     // ============================================================
     // 저장 이름: 바꾸면 기존 저장 데이터가 사라진 것처럼 보이니 그대로 두세요
     const STORAGE = 'class_adventure_v2_9_q43';
+    // 클라우드 저장 (Supabase): 7월 버전(v1)과 같은 프로젝트·같은 교사 계정을 쓰고, 표만 따로 써요
+    //  → 처음 한 번 Supabase에서 supabase_v2.sql을 실행해 표를 만들어야 해요
+    const SUPABASE_URL = 'https://wlrenrjgwqefumsenihc.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_cLjOP5RHJNzS5fJlGaA9TA_Heu3DNKS';
+    const CLOUD_TABLE = 'etiquette_quest_v2_state';
+    // 다른 기기의 변경사항을 확인하는 간격(밀리초). 15000 = 15초
+    const CLOUD_POLL_MS = 15000;
+    const APP_MARK = 'etiquette-quest-2';
     const ICON_ASSETS = {
         merchant: 'images/icon-merchant.png',
         telescope: 'images/icon-telescope.png',
@@ -251,6 +259,7 @@
         const oldStudents = Array.isArray(x.students) ? x.students : base.students;
         x.students = oldStudents.slice(0, 9).map((s, i) => ({ ...base.students[i % base.students.length], id: s.id || ('s' + (i + 1)), ...s, seat: Number(s.seat) || i + 1, active: s.active !== false, badges: Array.isArray(s.badges) ? s.badges : [], pendingBadges: Array.isArray(s.pendingBadges) ? s.pendingBadges : [] }));
         x.records = Array.isArray(x.records) ? x.records : [];
+        x.app = APP_MARK;
         x.date = x.date || today();
         if (x.date !== today()) {
             x.date = today();
@@ -270,16 +279,462 @@
         return initialState();
     } }
     let state = load(), activeStudent = null, pinMode = 'student';
-    function save() { try {
-        localStorage.setItem(STORAGE, JSON.stringify(state));
+    // 저장: 이 브라우저에 먼저 저장하고, 클라우드에도 올려요
+    //  kind = 'other'(일반 변경) / 'record'(학생 기록 제출) / 'local'(날짜 바뀜처럼 이 기기에서만 다시 계산되는 변경)
+    function save(kind = 'other') {
+        try {
+            localStorage.setItem(STORAGE, JSON.stringify(state));
+        }
+        catch (e) { }
+        if (kind === 'local')
+            return;
+        cloudMeta.dirty = true;
+        changeSerial++;
+        persistCloud();
+        scheduleCloudPush();
+    }
+    // ============================================================
+    // 3-1. 클라우드 저장 (Supabase)
+    //  - 교사 계정으로 기기마다 처음 한 번 로그인해요 (7월 버전과 같은 방식)
+    //  - 우리 반 전체 데이터가 표의 한 줄에 저장되고, revision 숫자로 누가 먼저 저장했는지 확인해요
+    //  - 다른 기기가 먼저 저장했으면: 학생 기록은 자동으로 합치고, 그 밖의 변경은 이 기기 것을 우선해요
+    //  - 인터넷이 끊겨도 이 기기에 저장해 두었다가 다시 연결되면 올려요
+    // ============================================================
+    const CLOUD_META_KEY = STORAGE + '_cloud', BASE_KEY = STORAGE + '_base';
+    const readJson = (k, fb) => { try {
+        const v = JSON.parse(localStorage.getItem(k));
+        return v ?? fb;
+    }
+    catch (e) {
+        return fb;
+    } };
+    const hadLocalAtStart = localStorage.getItem(STORAGE) !== null;
+    // cloudMeta.dirty: 이 기기에 아직 클라우드로 올리지 못한 변경이 있는지
+    let cloudMeta = { ownerId: '', email: '', revision: 0, dirty: false, updatedAt: '', ...readJson(CLOUD_META_KEY, {}) };
+    if (cloudMeta.otherDirty) {
+        cloudMeta.dirty = true;
+        delete cloudMeta.otherDirty;
+    }
+    // cloudBase: 마지막으로 클라우드와 맞춘 내용. 합칠 때 '누가 무엇을 바꿨는지' 비교하는 기준이에요
+    let cloudBase = readJson(BASE_KEY, null);
+    let changeSerial = 0, sb = null, cloudUser = null, cloudReady = false, cloudBusy = false, cloudTimer = null, cloudConflictRow = null, cloudStatus = 'idle', cloudRetryMs = 700;
+    function persistCloud() { try {
+        localStorage.setItem(CLOUD_META_KEY, JSON.stringify(cloudMeta));
+        localStorage.setItem(BASE_KEY, JSON.stringify(cloudBase));
     }
     catch (e) { } }
+    const cloudDirty = () => !!cloudMeta.dirty;
+    const CLOUD_STATUS_TEXT = { idle: '☁ 연결 확인 중', syncing: '☁ 저장 중…', synced: '☁ 저장 완료', offline: '☁ 이 기기에 저장됨 (연결되면 올려요)', login: '☁ 로그인 필요', error: '☁ 연결 오류', conflict: '☁ 선택 필요' };
+    function setCloudStatus(st) {
+        cloudStatus = st;
+        const pill = document.getElementById('cloudPill');
+        if (pill) {
+            pill.textContent = CLOUD_STATUS_TEXT[st] || st;
+            pill.className = 'cloud-pill ' + st;
+        }
+        const info = document.getElementById('cloudInfoStatus');
+        if (info)
+            info.textContent = CLOUD_STATUS_TEXT[st] || st;
+    }
+    function scheduleCloudPush(delay, keepStatus = false) {
+        if (!cloudReady)
+            return;
+        if (!keepStatus)
+            setCloudStatus(navigator.onLine ? 'syncing' : 'offline');
+        clearTimeout(cloudTimer);
+        cloudTimer = setTimeout(cloudPush, delay ?? 700);
+    }
+    async function fetchCloudRow() {
+        const { data, error } = await sb.from(CLOUD_TABLE).select('owner_id,state,revision,updated_at').eq('owner_id', cloudUser.id).maybeSingle();
+        if (error)
+            throw error;
+        return data;
+    }
+    const clone = v => JSON.parse(JSON.stringify(v));
+    const cloneState = () => clone({ ...state, app: APP_MARK });
+    function writeLocal() { try {
+        localStorage.setItem(STORAGE, JSON.stringify(state));
+    }
+    catch (e) { } persistCloud(); }
+    // ---------- 두 기기의 변경 합치기 (3-way merge) ----------
+    //  기준(base) 대비 한쪽만 바꿨으면 바뀐 쪽을, 둘 다 바꿨으면:
+    //   - 포인트·아이템 개수처럼 '쌓이는 숫자'는 양쪽 변화량을 더해요 (A가 10P 쓰고 B가 20P 쓰면 30P)
+    //   - 기록·사용내역·학생처럼 id가 있는 목록은 항목별로 합쳐요 (한쪽에서 지운 것은 지워요)
+    //   - 배지처럼 글자 목록은 합집합으로 합쳐요
+    //   - 그 밖의 값(설정 등)은 이 기기 값을 써요
+    const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    const COUNTER_PATHS = ['bank.earned', 'bank.used', 'bank.temp'];
+    const isCounter = path => COUNTER_PATHS.includes(path) || path.startsWith('adventure.inventory.');
+    function merge3(b, l, s, path = '') {
+        if (same(l, b))
+            return s;
+        if (same(s, b))
+            return l;
+        // 쌓이는 숫자는 양쪽이 우연히 같은 값이 되어도(둘 다 +20) 변화량을 더해야 해요
+        if (typeof l === 'number' && typeof s === 'number' && typeof b === 'number' && isCounter(path))
+            return Math.max(0, s + (l - b));
+        if (same(l, s) && !(isObj(l) && isObj(s)))
+            return l;
+        if (isObj(l) && isObj(s)) {
+            const bb = isObj(b) ? b : {}, out = {};
+            new Set([...Object.keys(s), ...Object.keys(l)]).forEach(k => { const v = merge3(bb[k], l[k], s[k], path ? path + '.' + k : k); if (v !== undefined)
+                out[k] = v; });
+            return out;
+        }
+        if (Array.isArray(l) && Array.isArray(s)) {
+            const bArr = Array.isArray(b) ? b : [];
+            const hasIds = arr => arr.every(x => isObj(x) && x.id != null);
+            if (hasIds(l) && hasIds(s) && hasIds(bArr)) {
+                const bm = new Map(bArr.map(x => [x.id, x])), lm = new Map(l.map(x => [x.id, x])), sm = new Map(s.map(x => [x.id, x]));
+                const order = [...s.map(x => x.id), ...l.map(x => x.id).filter(id => !sm.has(id))];
+                return order.filter(id => (lm.has(id) && sm.has(id)) || !bm.has(id)).map(id => lm.has(id) && sm.has(id) ? merge3(bm.get(id), lm.get(id), sm.get(id), path + '[]') : (lm.get(id) || sm.get(id)));
+            }
+            const prim = arr => arr.every(x => x === null || typeof x !== 'object');
+            if (prim(l) && prim(s) && prim(bArr)) {
+                const removed = new Set([...bArr.filter(x => !l.includes(x)), ...bArr.filter(x => !s.includes(x))]);
+                return [...new Set([...s, ...l])].filter(x => !removed.has(x));
+            }
+        }
+        return l;
+    }
+    // 합친 뒤 정리: 같은 학생·같은 날 기록이 둘이면 하나만, 제출 표시·기록 수 다시 계산, 오늘 전원 제출 보너스 확인
+    function tidyAfterMerge() {
+        const seen = new Set();
+        const dupPoints = [];
+        state.records = state.records.filter(r => { const k = r.studentId + '|' + r.date; if (seen.has(k)) {
+            dupPoints.push(Number(r.points) || 0);
+            return false;
+        } seen.add(k); return true; });
+        dupPoints.forEach(p => state.bank.earned = Math.max(0, state.bank.earned - p));
+        state.students.forEach(st => {
+            st.records = state.records.filter(r => r.studentId === st.id).length;
+            st.submittedToday = state.records.some(r => r.date === today() && r.studentId === st.id);
+        });
+        checkAllSubmitBonus(today());
+    }
+    // 클라우드 내용을 그대로 받아요 (이 기기에 올리지 못한 변경이 없을 때)
+    function takeServer(row) {
+        state = normalize(clone(row.state));
+        cloudBase = clone(row.state);
+        cloudMeta.revision = Number(row.revision) || 0;
+        cloudMeta.updatedAt = row.updated_at || '';
+        cloudMeta.dirty = false;
+        writeLocal();
+        renderAfterCloud();
+    }
+    // 이 기기 변경 + 클라우드 변경을 합쳐요 (이후 합친 내용을 다시 올려요)
+    function mergeWithServer(row) {
+        const before = state.records.length;
+        const merged = merge3(cloudBase ? clone(cloudBase) : {}, cloneState(), clone(row.state));
+        state = normalize(merged);
+        tidyAfterMerge();
+        cloudBase = clone(row.state);
+        cloudMeta.revision = Number(row.revision) || 0;
+        cloudMeta.dirty = true;
+        changeSerial++;
+        writeLocal();
+        renderAfterCloud();
+        const added = state.records.length - before;
+        if (added > 0)
+            toast(`다른 기기에서 들어온 기록 ${added}개를 합쳤어요.`);
+    }
+    // 다른 기기 내용을 받았을 때 화면 다시 그리기 (선생님 화면은 입력 중일 수 있어 그대로 둬요)
+    function renderAfterCloud() {
+        if (typeof renderTop !== 'function' || !document.getElementById('homeView'))
+            return;
+        renderTop();
+        renderBus();
+        renderAdventure();
+        renderCastleShop();
+        renderPromiseCard();
+        renderPraiseBoard();
+    }
+    async function cloudPush() {
+        if (!cloudReady || cloudBusy || !cloudDirty())
+            return;
+        if (!navigator.onLine) {
+            setCloudStatus('offline');
+            return;
+        }
+        cloudBusy = true;
+        const serialAtStart = changeSerial, snapshot = cloneState();
+        let retry = false, failed = false;
+        try {
+            const next = (Number(cloudMeta.revision) || 0) + 1;
+            const { data, error } = await sb.from(CLOUD_TABLE).update({ state: snapshot, revision: next }).eq('owner_id', cloudUser.id).eq('revision', cloudMeta.revision).select('revision,updated_at').maybeSingle();
+            if (error)
+                throw error;
+            if (!data) {
+                // 다른 기기가 먼저 저장했어요 → 합친 뒤 다시 올려요
+                const row = await fetchCloudRow();
+                if (!row)
+                    await createCloudRow();
+                else
+                    mergeWithServer(row);
+                retry = true;
+            }
+            else {
+                cloudMeta.revision = Number(data.revision) || next;
+                cloudMeta.updatedAt = data.updated_at || new Date().toISOString();
+                cloudBase = snapshot;
+                if (changeSerial === serialAtStart)
+                    cloudMeta.dirty = false;
+                persistCloud();
+                cloudRetryMs = 700;
+                setCloudStatus(cloudDirty() ? 'syncing' : 'synced');
+                renderCloudInfo();
+            }
+        }
+        catch (err) {
+            console.warn('클라우드 저장 실패', err);
+            failed = true;
+            setCloudStatus('offline');
+            cloudRetryMs = 10000;
+        }
+        finally {
+            cloudBusy = false;
+            if (cloudDirty() && cloudReady)
+                scheduleCloudPush(retry ? 0 : cloudRetryMs, failed);
+        }
+    }
+    async function createCloudRow() {
+        const snapshot = cloneState();
+        const { data, error } = await sb.from(CLOUD_TABLE).insert({ owner_id: cloudUser.id, state: snapshot, revision: 1 }).select('revision,updated_at').single();
+        if (error)
+            throw error;
+        cloudMeta = { ...cloudMeta, ownerId: cloudUser.id, email: cloudUser.email || '', revision: Number(data.revision) || 1, updatedAt: data.updated_at || '', dirty: false };
+        cloudBase = snapshot;
+        persistCloud();
+    }
+    function cloudGate(panel, message = '') {
+        const gate = document.getElementById('cloudGate');
+        if (!gate)
+            return;
+        gate.classList.toggle('hidden', !panel);
+        ['cloudLoginPanel', 'cloudLoadingPanel', 'cloudConflictPanel'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', id !== panel));
+        if (panel === 'cloudLoginPanel')
+            document.getElementById('cloudLoginError').textContent = message;
+        if (panel === 'cloudConflictPanel')
+            document.getElementById('cloudConflictText').textContent = message;
+    }
+    // 의미 있는 데이터가 이 기기에 있는지 (처음 연결할 때 클라우드 내용과 바꿔도 되는지 판단)
+    const localHasData = () => hadLocalAtStart && (state.records.length > 0 || state.adventure.step > 0 || Number(state.bank.used) > 0);
+    async function cloudBootstrap() {
+        setCloudStatus('syncing');
+        try {
+            const row = await fetchCloudRow();
+            if (row && row.state && row.state.app && row.state.app !== APP_MARK) {
+                cloudGate('cloudLoginPanel', '이 계정의 클라우드 표에 다른 형식의 데이터가 있어요. 설정의 CLOUD_TABLE 이름을 확인해 주세요.');
+                setCloudStatus('error');
+                return;
+            }
+            if (!row) {
+                await createCloudRow();
+            }
+            else if (cloudMeta.ownerId === cloudUser.id) {
+                // 이 기기는 전에 이 계정으로 저장한 적이 있어요
+                if (Number(row.revision) !== Number(cloudMeta.revision)) {
+                    if (cloudDirty())
+                        mergeWithServer(row);
+                    else
+                        takeServer(row);
+                }
+            }
+            else if (localHasData()) {
+                // 처음 연결하는 기기인데 이미 쓰던 내용이 있어요 → 선생님이 고르게 해요
+                cloudConflictRow = row;
+                cloudGate('cloudConflictPanel', `클라우드에는 기록 ${(row.state?.records || []).length}개, 이 기기에는 기록 ${state.records.length}개가 있어요. 어느 쪽을 쓸까요?`);
+                setCloudStatus('conflict');
+                return;
+            }
+            else {
+                cloudMeta = { ...cloudMeta, ownerId: cloudUser.id, email: cloudUser.email || '' };
+                takeServer(row);
+            }
+            cloudMeta.ownerId = cloudUser.id;
+            cloudMeta.email = cloudUser.email || cloudMeta.email;
+            persistCloud();
+            cloudReady = true;
+            cloudGate(null);
+            setCloudStatus(cloudDirty() ? 'syncing' : 'synced');
+            if (cloudDirty())
+                scheduleCloudPush(0);
+            renderCloudInfo();
+        }
+        catch (err) {
+            console.warn('클라우드 확인 실패', err);
+            cloudReady = false;
+            if (cloudMeta.ownerId) {
+                // 전에 연결했던 기기는 계속 쓸 수 있게 두고, 나중에 다시 시도해요
+                cloudGate(null);
+                setCloudStatus('offline');
+            }
+            else {
+                cloudGate('cloudLoginPanel', `클라우드에 연결하지 못했어요: ${err.message || err}`);
+                setCloudStatus('error');
+            }
+        }
+    }
+    async function cloudPoll() {
+        if (!sb || !cloudUser || cloudBusy || !navigator.onLine || cloudConflictRow)
+            return;
+        if (!cloudReady)
+            return cloudBootstrap();
+        if (cloudDirty())
+            return cloudPush();
+        try {
+            const row = await fetchCloudRow();
+            if (row && Number(row.revision) > Number(cloudMeta.revision) && !cloudDirty() && !cloudBusy)
+                takeServer(row);
+            setCloudStatus('synced');
+        }
+        catch (err) {
+            setCloudStatus('offline');
+        }
+    }
+    async function cloudLogin() {
+        const email = document.getElementById('cloudEmail').value.trim(), password = document.getElementById('cloudPassword').value;
+        if (!email || !password) {
+            cloudGate('cloudLoginPanel', '이메일과 비밀번호를 모두 입력해 주세요.');
+            return;
+        }
+        const btn = document.getElementById('cloudConnectBtn');
+        btn.disabled = true;
+        btn.textContent = '연결 중…';
+        try {
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if (error)
+                throw error;
+            cloudUser = data.user;
+            cloudGate('cloudLoadingPanel');
+            await cloudBootstrap();
+        }
+        catch (err) {
+            cloudGate('cloudLoginPanel', err.message === 'Invalid login credentials' ? '이메일 또는 비밀번호가 맞지 않아요.' : (err.message || '연결하지 못했어요.'));
+        }
+        finally {
+            btn.disabled = false;
+            btn.textContent = '이 기기 연결';
+        }
+    }
+    async function resolveConflict(useCloud) {
+        const row = cloudConflictRow;
+        if (!row)
+            return;
+        if (useCloud) {
+            if (!confirm('클라우드 내용을 불러오면 이 기기의 내용은 사라져요. 계속할까요?'))
+                return;
+            cloudMeta = { ...cloudMeta, ownerId: cloudUser.id, email: cloudUser.email || '' };
+            takeServer(row);
+        }
+        else {
+            if (!confirm('이 기기 내용으로 클라우드를 덮어쓸까요? 다른 기기에서 저장한 내용은 사라져요.'))
+                return;
+            cloudMeta = { ...cloudMeta, ownerId: cloudUser.id, email: cloudUser.email || '', revision: Number(row.revision) || 0, dirty: true };
+            cloudBase = clone(row.state);
+            changeSerial++;
+        }
+        cloudConflictRow = null;
+        persistCloud();
+        cloudReady = true;
+        cloudGate(null);
+        setCloudStatus(cloudDirty() ? 'syncing' : 'synced');
+        if (cloudDirty())
+            scheduleCloudPush(0);
+        renderCloudInfo();
+    }
+    async function cloudReloadFromServer() {
+        if (!sb || !cloudUser)
+            return;
+        if (cloudDirty() && !confirm('아직 클라우드에 올라가지 않은 이 기기의 변경이 있어요. 클라우드 내용을 불러오면 이 변경은 사라져요. 계속할까요?'))
+            return;
+        try {
+            const row = await fetchCloudRow();
+            if (row) {
+                takeServer(row);
+                cloudReady = true;
+                setCloudStatus('synced');
+                toast('클라우드 최신 내용을 불러왔어요.');
+                if (!document.getElementById('teacherView').classList.contains('hidden'))
+                    renderTeacher();
+            }
+        }
+        catch (err) {
+            toast(`불러오지 못했어요: ${err.message || err}`);
+        }
+    }
+    async function cloudDisconnect() {
+        if (cloudDirty() && !confirm('아직 클라우드에 올라가지 않은 변경이 있어요. 연결을 끊으면 이 변경은 올라가지 않아요. 계속할까요?'))
+            return;
+        if (!confirm('이 기기의 클라우드 연결을 끊을까요? 클라우드에 저장된 데이터는 지워지지 않아요.'))
+            return;
+        try {
+            await sb.auth.signOut();
+        }
+        catch (e) { }
+        cloudUser = null;
+        cloudReady = false;
+        cloudMeta = { ownerId: '', email: '', revision: 0, dirty: false, updatedAt: '' };
+        cloudBase = null;
+        persistCloud();
+        showAppView('home');
+        cloudGate('cloudLoginPanel');
+        setCloudStatus('login');
+    }
+    function renderCloudInfo() {
+        const box = document.getElementById('cloudInfo');
+        if (!box)
+            return;
+        const when = cloudMeta.updatedAt ? new Date(cloudMeta.updatedAt).toLocaleString('ko-KR') : '-';
+        box.innerHTML = `<p><b>연결 계정:</b> ${esc(cloudUser?.email || cloudMeta.email || '연결 안 됨')}</p><p><b>상태:</b> <span id="cloudInfoStatus">${CLOUD_STATUS_TEXT[cloudStatus] || ''}</span></p><p><b>마지막 클라우드 저장:</b> ${esc(when)} · 저장 번호 ${Number(cloudMeta.revision) || 0}</p>${cloudDirty() ? '<p><b>아직 올라가지 않은 변경이 있어요.</b> 연결되면 자동으로 올려요.</p>' : ''}`;
+    }
+    async function initCloud() {
+        document.getElementById('cloudConnectBtn').onclick = cloudLogin;
+        document.getElementById('cloudPassword').addEventListener('keydown', e => { if (e.key === 'Enter')
+            cloudLogin(); });
+        document.getElementById('useCloudBtn').onclick = () => resolveConflict(true);
+        document.getElementById('useLocalBtn').onclick = () => resolveConflict(false);
+        document.getElementById('cloudPill').onclick = () => toast(cloudStatus === 'offline' ? '인터넷이 연결되면 자동으로 클라우드에 올려요.' : (CLOUD_STATUS_TEXT[cloudStatus] || ''));
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+            if (cloudMeta.ownerId) {
+                setCloudStatus('offline');
+                return;
+            }
+            setCloudStatus('error');
+            cloudGate('cloudLoginPanel', '클라우드 연결 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.');
+            return;
+        }
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+        try {
+            const { data, error } = await sb.auth.getSession();
+            if (error)
+                throw error;
+            cloudUser = data.session?.user || null;
+        }
+        catch (err) {
+            cloudUser = null;
+        }
+        if (!cloudUser) {
+            setCloudStatus('login');
+            cloudGate('cloudLoginPanel');
+            return;
+        }
+        if (!cloudMeta.ownerId)
+            cloudGate('cloudLoadingPanel');
+        await cloudBootstrap();
+    }
+    setInterval(cloudPoll, CLOUD_POLL_MS);
+    window.addEventListener('online', cloudPoll);
+    window.addEventListener('focus', cloudPoll);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden)
+        cloudPoll(); });
     // 날짜가 바뀌었는지 확인해요. 페이지를 밤새 켜 두어도 '오늘 제출' 표시가 새 날짜에 맞게 초기화돼요
     function checkNewDay() {
         if (state.date === today())
             return false;
         state = normalize(state);
-        save();
+        save('local');
         return true;
     }
     const $ = id => document.getElementById(id);
@@ -525,8 +980,8 @@
         return last.length === n && last.every(d => state.records.some(r => r.date === d && r.studentId === studentId));
     }
     // 참여 학생 전원이 그날 기록했으면 보너스를 한 번만 줘요
-    function checkAllSubmitBonus() {
-        const d = today(), bonus = allSubmitBonusAmount(), active = state.students.filter(s => s.active !== false);
+    function checkAllSubmitBonus(d = today()) {
+        const bonus = allSubmitBonusAmount(), active = state.students.filter(s => s.active !== false);
         if (!bonus || !active.length || state.bonusDays[d])
             return 0;
         if (!active.every(s => state.records.some(r => r.date === d && r.studentId === s.id)))
@@ -579,13 +1034,32 @@
             toast(`이야기를 ${STORY_MIN_LENGTH}글자 이상 적어 주세요. (지금 ${textLength(story)}글자)`);
             return;
         }
-        if (s.submittedToday) {
+        if (s.submittedToday || state.records.some(r => r.date === today() && r.studentId === s.id)) {
             toast('오늘 기록은 이미 제출했어요.');
             return;
         }
-        const pts = Math.max(0, Number(state.settings.recordPoints) || 0);
-        s.submittedToday = true;
-        state.records.push({ id: 'r' + Date.now(), date: today(), studentId: s.id, studentName: s.name, practice: picked.practice, goal: picked.goal, notice: picked.notice, ...(praise || {}), story, points: pts, createdAt: new Date().toISOString() });
+        const rec = { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 7), date: today(), studentId: s.id, studentName: s.name, practice: picked.practice, goal: picked.goal, notice: picked.notice, ...(praise || {}), story, points: Math.max(0, Number(state.settings.recordPoints) || 0), createdAt: new Date().toISOString() };
+        const result = applySubmission(rec);
+        if (!result) {
+            toast('오늘 기록은 이미 제출했어요.');
+            return;
+        }
+        save('record');
+        modal('recordModal', false);
+        renderAll();
+        animateToBank(result.pts + result.bonus);
+        setTimeout(() => showSuccess(result.student, result.newBadges, result.bonus, !!praise), 900);
+    }
+    // 기록 1개를 상태에 반영해요 (포인트·배지·전원 제출 보너스). 이미 같은 기록이 있으면 null
+    //  → 이 기기에서 제출할 때도, 다른 기기 기록을 합칠 때도 같은 함수를 써요
+    function applySubmission(rec) {
+        const s = state.students.find(x => x.id === rec.studentId);
+        if (!s || state.records.some(r => r.id === rec.id || (r.date === rec.date && r.studentId === rec.studentId)))
+            return null;
+        const pts = Math.max(0, Number(rec.points ?? state.settings.recordPoints) || 0);
+        state.records.push({ ...rec, studentName: rec.studentName || s.name, points: pts });
+        if (rec.date === today())
+            s.submittedToday = true;
         s.records = state.records.filter(r => r.studentId === s.id).length;
         state.bank.earned += pts;
         const newBadges = [];
@@ -602,12 +1076,8 @@
             newBadges.push(k);
         } });
         s.pendingBadges = [];
-        const bonus = checkAllSubmitBonus();
-        save();
-        modal('recordModal', false);
-        renderAll();
-        animateToBank(pts + bonus);
-        setTimeout(() => showSuccess(s, newBadges, bonus, !!praise), 900);
+        const bonus = checkAllSubmitBonus(rec.date);
+        return { student: s, newBadges, bonus, pts };
     }
     function animateToBank(pts) { const from = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; const target = $('bankTarget').getBoundingClientRect(); for (let i = 0; i < 4; i++) {
         const d = document.createElement('div');
@@ -1366,7 +1836,7 @@
         $('teacherBonus').innerHTML = `<div class="admin-card"><h3>모험 기본 규칙</h3><p class="admin-sub">모험에서 사용하는 포인트 비용과 기본 규칙을 설정해요.</p><div class="adventure-settings-grid"><div class="field"><label>기본 1칸 이동비 (P)</label><input id="setBaseMoveCost" type="number" min="1" value="${state.settings.baseMoveCost}"></div><div class="field"><label>보물상자 운반 추가비용 (P)</label><input id="setChestCarryExtra" type="number" min="0" value="${state.settings.chestCarryExtra}"></div><div class="field"><label>자판기 음료수 가격 (P)</label><input id="setDrinkCost" type="number" min="0" value="${ls.drinkCost}"></div><div class="field"><label>음료 거절 시 다음 이동 무효 확률 (%)</label><input id="setSlowChance" type="number" min="0" max="100" value="${ls.slowChance ?? 50}"></div></div><div class="settings-group-title">이동 후 이벤트 발생확률</div><div class="adventure-settings-grid"><div class="field"><label>선택의 길 (%)</label><input class="event-prob-input" id="setProbFork" type="number" min="0" max="100" step="1" value="${ep.fork}"></div><div class="field"><label>상인 예고 (%)</label><input class="event-prob-input" id="setProbMerchant" type="number" min="0" max="100" step="1" value="${ep.merchant}"></div><div class="field"><label>수상한 상인 (%)</label><input class="event-prob-input" id="setProbMysteryMerchant" type="number" min="0" max="100" step="1" value="${ep.mysteryMerchant ?? 8}"></div><div class="field"><label>보물상자 (%)</label><input class="event-prob-input" id="setProbChest" type="number" min="0" max="100" step="1" value="${ep.chest}"></div><div class="field"><label>길 위 돌발사건 (%)</label><input class="event-prob-input" id="setProbRoad" type="number" min="0" max="100" step="1" value="${ep.road}"></div><div class="field"><label>생활형 이벤트 (%)</label><input class="event-prob-input" id="setProbLife" type="number" min="0" max="100" step="1" value="${ep.life}"></div></div><div class="probability-summary" id="probabilitySummary">현재 이벤트 합계 <strong>${probTotal}%</strong> · 평범한 이동 <strong>${Math.max(0, 100 - probTotal)}%</strong><br>각 확률의 합이 100%를 넘을 수 없습니다.</div></div><div class="admin-card"><h3>선택의 길 설정</h3><p class="admin-sub">선택의 길의 이름·분위기는 코드의 <b>CHOICE_PATH_TYPES</b>에서 여러 종류를 편집할 수 있고, 아래 값은 모든 선택의 길의 좌·우 비용과 이동 범위에 공통 적용됩니다. 왼쪽은 '안전한 길'(최소=최대로 두면 늘 같은 칸), 오른쪽은 '모험 길'(범위가 넓을수록 운이 커져요)로 쓰는 걸 추천해요.</p><div class="adventure-settings-grid"><div class="field"><label>왼쪽 선택지 기본 비용 (P)</label><input id="setForkLeftCost" type="number" min="0" value="${fs.leftCost}"></div><div class="field"><label>왼쪽 선택지 기본 최소 이동</label><input id="setForkLeftMin" type="number" min="1" value="${fs.leftMin}"></div><div class="field"><label>왼쪽 선택지 기본 최대 이동</label><input id="setForkLeftMax" type="number" min="1" value="${fs.leftMax}"></div><div class="field"><label>오른쪽 선택지 기본 비용 (P)</label><input id="setForkRightCost" type="number" min="0" value="${fs.rightCost}"></div><div class="field"><label>오른쪽 선택지 기본 최소 이동</label><input id="setForkRightMin" type="number" min="1" value="${fs.rightMin}"></div><div class="field"><label>오른쪽 선택지 기본 최대 이동</label><input id="setForkRightMax" type="number" min="1" value="${fs.rightMax}"></div></div><div class="fork-balance" id="forkBalance">${forkBalanceHtml(fs)}</div></div><div class="admin-card"><h3>길거리 상인 설정</h3><div class="adventure-settings-grid"><div class="field"><label>상인이 보이는 최소 거리</label><input id="setMerchantMin" type="number" min="1" value="${md.min}"></div><div class="field"><label>상인이 보이는 최대 거리</label><input id="setMerchantMax" type="number" min="1" value="${md.max}"></div><div></div>${SHOP.map(it => `<div class="field"><label>${it.icon} ${it.name} 가격</label><input data-shop-price="${it.key}" type="number" min="0" value="${shopPrice(it.key, it.price)}"></div>`).join('')}</div></div><div class="admin-card"><h3>수상한 상인 설정</h3><p class="admin-sub">각 가격을 골랐을 때 좋은 결과가 나올 확률을 바꿀 수 있어요.</p><div class="adventure-settings-grid"><div class="field"><label>10P 좋은 결과 확률 (%)</label><input id="setMysteryGood10" type="number" min="0" max="100" value="${ms.goodChances[10]}"></div><div class="field"><label>20P 좋은 결과 확률 (%)</label><input id="setMysteryGood20" type="number" min="0" max="100" value="${ms.goodChances[20]}"></div><div class="field"><label>30P 좋은 결과 확률 (%)</label><input id="setMysteryGood30" type="number" min="0" max="100" value="${ms.goodChances[30]}"></div><div class="field"><label>40P 좋은 결과 확률 (%)</label><input id="setMysteryGood40" type="number" min="0" max="100" value="${ms.goodChances[40]}"></div></div></div><div class="admin-card"><h3>길 위 돌발사건 설정</h3><div class="adventure-settings-grid two"><div class="field"><label>통행료 청구서 손실 (P)</label><input id="setRoadLoss" type="number" min="0" value="${rs.loss}"></div><div class="field"><label>행운·감사 보상 (P)</label><input id="setRoadGain" type="number" min="0" value="${rs.gain}"></div></div></div><div class="admin-card"><h3>보물상자 보상 설정</h3><p class="admin-sub">열쇠로 연 보물상자에는 아래에서 선택한 좋은 보상만 등장합니다.</p><div class="bonus-options">${[['early', '수업 3분 일찍 마치기'], ['note', '보너스 포인트 +10P'], ['present', '숲길 안내지도 1개'], ['snack', '작은 간식'], ['free', '쾌속 주행권 1개']].map(([k, n]) => `<label class="bonus-option"><input type="checkbox" data-reward="${k}" ${rewards[k] ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div><div class="actions"><button class="primary" id="saveBonus">모험 설정 저장</button></div></div>`;
         $('teacherRecords').innerHTML = `<div class="admin-card"><h3>전체 실천 기록</h3><p class="admin-sub">클라우드 연결 없이 이 브라우저에 저장된 다른 날짜·학생의 기록을 볼 수 있어요.</p><div class="filter-row"><div class="field"><label>날짜 필터</label><input id="recordDateFilter" type="date"></div><div class="field"><label>참여자 필터</label><select id="recordStudentFilter"><option value="">전체 학생</option>${state.students.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div></div><div class="table-wrap"><table class="admin-table"><thead><tr><th>날짜</th><th>학생</th><th>나의 실천</th><th>공동 목표</th><th>좋은 행동 발견</th><th>칭찬 쪽지</th><th>이야기</th><th>포인트</th><th>관리</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>`;
         $('teacherBadges').innerHTML = `<div class="admin-card"><h3>배지 지급</h3><p class="admin-sub">수업 중 확인한 활동 배지는 미리 예약해두고, 학생이 다음 기록을 제출할 때 처음 공개돼요.</p><div class="award-grid"><div class="field"><label>학생 선택</label><select id="awardStudent">${active.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div><div class="field"><label>배지 선택</label><select id="awardBadge">${Object.entries(BADGES).filter(([k]) => !['first', 'steady'].includes(k)).map(([k, b]) => `<option value="${k}">${b.icon} ${b.name}</option>`).join('')}</select></div></div><div class="actions"><button class="primary" id="awardBadgeBtn">배지 지급 예약</button></div><div class="badge-catalog">${Object.entries(BADGES).map(([k, b]) => `<div class="catalog-card"><b>${b.icon} ${b.name}</b><small>${b.desc}</small></div>`).join('')}</div></div>`;
-        $('teacherBackup').innerHTML = `<div class="admin-card"><h3>백업·복구</h3><p class="admin-sub">현재 버전은 클라우드 없이 브라우저에 저장돼요. 중요한 기록은 JSON 백업 파일로 따로 보관하는 게 안전해요.</p><div class="backup-row"><button class="primary" id="exportJson">전체 백업 JSON</button><button class="secondary" id="exportCsv">기록 CSV</button><label class="secondary" for="importJson" style="cursor:pointer">백업 파일 복구</label><input class="hidden" id="importJson" type="file" accept=".json,application/json"></div><div class="snapshot-note">현재 브라우저 저장소에 자동 저장됩니다. 다른 컴퓨터에서는 JSON 백업을 불러와야 기록을 이어서 볼 수 있어요.</div><div class="danger-zone"><h3>전체 초기화</h3><p class="admin-sub">모든 학생 설정·기록·포인트·모험 진행을 지웁니다.</p><button class="danger" id="resetAll">모든 데이터 초기화</button></div></div>`;
+        $('teacherBackup').innerHTML = `<div class="admin-card"><h3>☁ 클라우드 저장</h3><p class="admin-sub">기록과 모험 진행은 클라우드(Supabase)에 자동으로 저장되고, 같은 교사 계정으로 연결한 모든 기기에서 함께 보여요. 다른 기기의 변경은 ${Math.round(CLOUD_POLL_MS / 1000)}초마다 확인해요.</p><div class="cloud-info" id="cloudInfo"></div><div class="backup-row"><button class="secondary" id="cloudReloadBtn" type="button">클라우드에서 다시 불러오기</button><button class="danger" id="cloudDisconnectBtn" type="button">이 기기 연결 끊기</button></div></div><div class="admin-card"><h3>백업·복구</h3><p class="admin-sub">클라우드와 별개로, 중요한 시점마다 JSON 백업 파일을 받아 두면 더 안전해요.</p><div class="backup-row"><button class="primary" id="exportJson">전체 백업 JSON</button><button class="secondary" id="exportCsv">기록 CSV</button><label class="secondary" for="importJson" style="cursor:pointer">백업 파일 복구</label><input class="hidden" id="importJson" type="file" accept=".json,application/json"></div><div class="snapshot-note">백업 파일을 복구하면 그 내용이 클라우드에도 저장돼요.</div><div class="danger-zone"><h3>전체 초기화</h3><p class="admin-sub">모든 학생 설정·기록·포인트·모험 진행을 지웁니다.</p><button class="danger" id="resetAll">모든 데이터 초기화</button></div></div>`;
         const total = state.records.length, unique = new Set(state.records.map(r => r.studentId)).size;
         $('teacherReport').innerHTML = `<div class="report-box"><h2>${esc(UI_TEXT.className)} 활동 요약</h2><p><b>기간:</b> ${esc(state.settings.startDate)} ~ ${esc(state.settings.endDate)}</p><p><b>공동 목표:</b> ${esc(state.settings.goal)}</p><p><b>전체 기록:</b> ${total}회 · 참여 학생 ${unique}명</p><p><b>총 적립 포인트:</b> ${state.bank.earned}P · 임시 ${Number(state.bank.temp || 0)}P · 사용 ${state.bank.used}P · 잔액 ${available()}P</p><p><b>모험 진행:</b> ${state.adventure.step} / ${STAGES.at(-1).step}칸 (${STAGES[currentStageIndex()].name})</p><p><b>최종 공동 보상:</b> ${esc(state.settings.prizeName)}</p><p><b>칭찬 쪽지:</b> ${praiseRecords().length}장 · <b>전원 제출한 날:</b> ${Object.keys(state.bonusDays).length}일</p><h3 style="margin-top:16px">🤝 ${esc(UI_TEXT.promiseTitle)}</h3>${state.promises.length ? `<ol>${state.promises.map(p => `<li>${esc(p)}</li>`).join('')}</ol>` : '<p style="color:#8a96a7">아직 정하지 않았어요. (실천의 성에 도착하면 정해요)</p>'}<h3 style="margin-top:16px">💌 칭찬 쪽지 모음</h3>${praiseRecords().length ? `<ul class="report-praise">${praiseRecords().map(r => `<li><b>To. ${esc(r.praiseToName)}</b> ${esc(r.praiseText)} <small>(${esc(r.date)})</small></li>`).join('')}</ul>` : '<p style="color:#8a96a7">아직 쪽지가 없어요.</p>'}</div><div class="actions"><button class="primary" id="printReport">요약 인쇄</button></div>`;
         quizBonusDraft = null;
@@ -1539,6 +2009,13 @@
             df.oninput = renderRecordRows;
         if (sf)
             sf.onchange = renderRecordRows;
+        renderCloudInfo();
+        const crb = $('cloudReloadBtn');
+        if (crb)
+            crb.onclick = cloudReloadFromServer;
+        const cdb = $('cloudDisconnectBtn');
+        if (cdb)
+            cdb.onclick = cloudDisconnect;
         const ej = $('exportJson');
         if (ej)
             ej.onclick = exportJson;
@@ -1550,7 +2027,7 @@
             ij.onchange = importJson;
         const ra = $('resetAll');
         if (ra)
-            ra.onclick = () => { if (confirm('모든 데이터와 기록을 정말 초기화할까요?')) {
+            ra.onclick = () => { if (confirm('모든 데이터와 기록을 정말 초기화할까요?\n클라우드에 저장된 내용도 함께 지워져서, 연결된 모든 기기에서 사라져요.')) {
                 state = initialState();
                 save();
                 showAppView('home');
@@ -1638,4 +2115,5 @@
         renderAll(); });
     document.querySelectorAll('.teacher-tab').forEach(b => b.onclick = () => { document.querySelectorAll('.teacher-tab').forEach(x => x.classList.toggle('active', x === b)); document.querySelectorAll('.teacher-section').forEach(x => x.classList.remove('active')); const id = 'teacher' + b.dataset.teacherTab[0].toUpperCase() + b.dataset.teacherTab.slice(1); $(id)?.classList.add('active'); renderTeacher(); });
     renderAll();
+    initCloud();
 })();

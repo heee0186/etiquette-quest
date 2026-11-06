@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>우리 반 예절 실천 퀘스트 2.11</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brand"><div class="brand-mark">🧭</div><div class="brand-copy"><h1 id="headerTitle">학생들 예절 실천</h1><p id="headerSubtitle"></p></div></div>
+    <button class="cloud-pill idle" id="cloudPill" type="button">☁ 연결 확인 중</button>
     <nav class="main-tabs" aria-label="주요 화면">
       <button class="main-tab active" data-view="home">홈</button>
       <button class="main-tab" data-view="adventure">모험 지도</button>
@@ -193,6 +195,31 @@
 
 <button class="teacher-entry" id="teacherEntry" aria-label="선생님 관리">⚙</button>
 <div class="toast" id="toast"></div>
+
+<div class="cloud-gate hidden" id="cloudGate">
+  <div class="cloud-card">
+    <section id="cloudLoginPanel">
+      <div class="cloud-mark">☁️</div>
+      <h2>이 기기 클라우드 연결</h2>
+      <p>교사용 계정으로 이 기기를 <b>처음 한 번만</b> 연결해요. 연결하면 기록이 클라우드에 저장되고, 같은 계정으로 연결한 다른 기기와 함께 보여요.</p>
+      <label class="cloud-field">교사용 이메일<input id="cloudEmail" type="email" inputmode="email" autocomplete="username"></label>
+      <label class="cloud-field">교사용 비밀번호<input id="cloudPassword" type="password" autocomplete="current-password"></label>
+      <button class="primary" id="cloudConnectBtn" type="button">이 기기 연결</button>
+      <div class="cloud-error" id="cloudLoginError" aria-live="polite"></div>
+      <div class="cloud-note">7월 예절 페이지에서 쓰던 교사 계정과 같아요. 학생이 기록할 때마다 로그인하는 화면이 아니에요.</div>
+    </section>
+    <section id="cloudLoadingPanel" class="hidden">
+      <div class="cloud-mark">⏳</div>
+      <h2>클라우드 데이터를 확인하고 있어요</h2>
+    </section>
+    <section id="cloudConflictPanel" class="hidden">
+      <div class="cloud-mark">⚠️</div>
+      <h2>어느 내용을 쓸까요?</h2>
+      <p id="cloudConflictText"></p>
+      <div class="cloud-actions"><button class="primary" id="useCloudBtn" type="button">클라우드 내용 쓰기</button><button class="secondary" id="useLocalBtn" type="button">이 기기 내용으로 덮어쓰기</button></div>
+    </section>
+  </div>
+</div>
 
 <div class="modal-backdrop hidden" id="pinModal"><div class="modal small"><div class="modal-head"><h2 id="pinModalTitle">비밀번호</h2><button class="close" data-close="pinModal">×</button></div><div class="modal-body"><div class="pin-title" id="pinStudentName">학생</div><div class="pin-sub">4자리 비밀번호를 입력하세요.</div><input id="pinInput" class="pin-input" type="password" inputmode="numeric" maxlength="4" autocomplete="off"/><div class="pin-actions"><button class="secondary" data-close="pinModal">취소</button><button class="primary" id="pinConfirm">확인</button></div></div></div></div>
 

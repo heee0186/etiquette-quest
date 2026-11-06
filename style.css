@@ -3642,3 +3642,57 @@ button {
   z-index: 5;
   box-shadow: 0 10px 30px rgba(35,55,90,.18);
 }
+
+/* ==========================================================
+   클라우드 저장 - 상태 표시·연결 화면
+   ========================================================== */
+.cloud-pill {
+  margin-left: auto;
+  margin-right: 10px;
+  padding: 7px 12px;
+  border: 1px solid #dfe7ef;
+  border-radius: 999px;
+  background: #fff;
+  color: #687089;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cloud-pill.synced { color: #1f7a4d; border-color: #bfe6cf; background: #f0fbf4; }
+.cloud-pill.syncing { color: #35499c; border-color: #ccd5f5; background: #f3f5ff; }
+.cloud-pill.offline, .cloud-pill.conflict { color: #a3620f; border-color: #f1d9a8; background: #fff8e8; }
+.cloud-pill.error, .cloud-pill.login { color: #c0392b; border-color: #f2c4bf; background: #fff3f2; }
+.cloud-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(23, 32, 51, .55);
+  backdrop-filter: blur(4px);
+}
+.cloud-gate.hidden { display: none; }
+.cloud-card {
+  width: min(440px, 100%);
+  padding: 28px 26px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(20, 30, 60, .3);
+  text-align: center;
+}
+.cloud-mark { font-size: 40px; }
+.cloud-card h2 { margin: 8px 0 10px; color: #243b73; }
+.cloud-card p { color: #687089; line-height: 1.55; font-size: 14px; }
+.cloud-field { display: grid; gap: 6px; margin: 12px 0; text-align: left; font-size: 13px; font-weight: 850; color: #5b6475; }
+.cloud-field input { padding: 11px 13px; border: 2px solid #dce3eb; border-radius: 12px; font: inherit; }
+.cloud-card .primary { width: 100%; margin-top: 6px; }
+.cloud-error { min-height: 20px; margin-top: 10px; color: #c0392b; font-size: 13px; font-weight: 800; }
+.cloud-note { margin-top: 6px; color: #8a96a7; font-size: 12px; line-height: 1.5; }
+.cloud-actions { display: grid; gap: 8px; margin-top: 14px; }
+.cloud-info p { margin: 4px 0; }
+@media (max-width: 720px) {
+  .cloud-pill { font-size: 11px; padding: 6px 9px; margin-right: 6px; }
+}
