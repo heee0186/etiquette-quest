@@ -3448,7 +3448,7 @@ button {
   transition: width .6s ease;
 }
 .target-prize {
-  margin-top: 8px;
+  text-align: center;
   color: #75829a;
   font-size: 13px;
   font-weight: 750;
@@ -3475,58 +3475,32 @@ button {
   color: #1f7a4d;
   line-height: 1.5;
 }
-.praise-sent { color: #b4507a; font-weight: 800; }
 
-/* 기록 화면: 칭찬 쪽지 쓰기 */
-.praise-write {
+/* 기록 화면: '아쉬웠어요' 다짐 칸 · '발견했어요' 좋은 행동 칸 */
+.extra-write {
   margin-top: 14px;
   padding: 14px;
   border-radius: 14px;
-  background: #fff5f8;
-  border: 1px dashed #f0a9c2;
+  background: #f5f7fb;
+  border: 1px dashed #c9d3e3;
+  display: grid;
+  gap: 8px;
 }
-.praise-write-title { font-weight: 900; color: #b4507a; margin-bottom: 10px; }
-.praise-write-row { display: grid; gap: 6px; margin-bottom: 10px; }
-.praise-write-row label { font-size: 13px; font-weight: 850; color: #5b6475; }
-.praise-write select,
-.praise-write input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #dce3eb;
-  border-radius: 12px;
-  font: inherit;
-  background: #fff;
-}
-.praise-text { min-height: 70px; }
+.extra-write label { font-size: 14px; font-weight: 850; color: #44506a; }
+.extra-text { min-height: 80px; background: #fff; }
+.praise-write { background: #f1faeb; border-color: #b9dfa4; }
+.praise-write label { color: #3f6b2a; }
+.praise-write .extra-text:focus { border-color: #8cc56f; }
 .required-note.ok { color: #1f7a4d; }
-.praise-count {
-  display: inline-block;
-  margin-left: 4px;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: #fde3ec;
-  color: #b4507a;
-  font-size: 12px;
-}
-.praise-mini-list { display: grid; gap: 7px; }
-.praise-mini {
-  padding: 9px 11px;
-  border-radius: 12px;
-  background: #fff5f8;
-  border: 1px solid #f7d3e0;
-  font-size: 13px;
-  line-height: 1.45;
-}
-.praise-mini small { display: block; margin-top: 3px; color: #a0899a; font-size: 11px; }
-.praise-more { color: #8a96a7; font-size: 12px; }
+.praise-sent { color: #4c8a2f; font-weight: 800; }
 
-/* 모험 지도: 칭찬 쪽지함 */
+/* 모험 지도: 칭찬 쪽지함 (연한 연두색) */
 .praise-board-card,
 .promise-card {
   margin-top: 18px;
   padding: 22px 24px 24px;
 }
-.praise-board-card { background: linear-gradient(180deg, #fff3f7, #ffffff 70%); }
+.praise-board-card { background: linear-gradient(180deg, #f2fbec, #ffffff 70%); }
 .promise-card { background: linear-gradient(180deg, #eefaf3, #ffffff 70%); }
 .praise-board-head {
   display: flex;
@@ -3536,15 +3510,15 @@ button {
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.praise-kicker { color: #c0628a; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
+.praise-kicker { color: #5f9a3e; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
 .promise-card .praise-kicker { color: #2f9466; }
-.praise-board-head h3 { margin: 4px 0 6px; font-size: 24px; color: #3b2a35; }
+.praise-board-head h3 { margin: 4px 0 6px; font-size: 24px; color: #2f4a22; }
 .promise-card .praise-board-head h3 { color: #1f4a35; }
-.praise-board-head p { margin: 0; color: #84707c; font-size: 14px; }
-.praise-total { font-size: 14px; color: #c0628a; }
+.praise-board-head p { margin: 0; color: #6f8166; font-size: 14px; }
+.praise-total { font-size: 14px; color: #5f9a3e; }
 .praise-filter {
   padding: 9px 12px;
-  border: 2px solid #f0cad8;
+  border: 2px solid #cfe8c0;
   border-radius: 12px;
   font: inherit;
   background: #fff;
@@ -3557,16 +3531,18 @@ button {
 .praise-note {
   padding: 14px 15px 12px;
   border-radius: 6px 18px 18px 18px;
-  box-shadow: 0 6px 16px rgba(80, 40, 60, .08);
+  border: 1px solid #d6edc8;
+  box-shadow: 0 6px 16px rgba(60, 100, 40, .08);
   line-height: 1.5;
 }
-.praise-note.tone-0 { background: #fff1c9; }
-.praise-note.tone-1 { background: #ffe0ea; }
-.praise-note.tone-2 { background: #dff3ff; }
-.praise-note.tone-3 { background: #e5f7dd; }
-.praise-to { font-weight: 1000; color: #3b2a35; }
-.praise-note p { margin: 6px 0 8px; font-size: 15px; color: #33303a; word-break: keep-all; }
-.praise-note small { color: #7f7380; font-size: 12px; }
+.praise-note.tone-0 { background: #f1faeb; }
+.praise-note.tone-1 { background: #e8f6dd; }
+.praise-note.tone-2 { background: #f4fbe6; }
+.praise-note.tone-3 { background: #e6f5e4; }
+.praise-to { font-weight: 1000; color: #2f4a22; }
+.praise-note p { margin: 0 0 8px; font-size: 15px; color: #2f3a2a; word-break: keep-all; }
+.praise-note .praise-to + p { margin-top: 6px; }
+.praise-note small { color: #789070; font-size: 12px; }
 
 /* 예절 약속 */
 .promise-list { margin: 8px 0 0; padding-left: 22px; text-align: left; }

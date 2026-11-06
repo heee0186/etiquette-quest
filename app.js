@@ -130,7 +130,6 @@
         pocketNote: '기록으로 모은 포인트는 다음 수업시간에 우리 반이 함께 사용해요.',
         busTitle: '우리 반 모험 버스',
         busHint: '내 좌석을 눌러 오늘의 기록을 시작해요.',
-        targetLabel: '지금까지 모은 포인트',
         prizeLabel: '완주 보상',
         allBonusHint: '오늘 모두 기록하면 보너스',
         allBonusDone: '오늘 전원 기록 완료! 보너스',
@@ -146,8 +145,15 @@
     const DEFAULT_REWARDS = { early: true, note: true, present: true, snack: true, free: true, empty: true };
     // 오늘의 기록: '적고 싶은 이야기'의 최소 글자 수 (띄어쓰기는 세지 않아요)
     const STORY_MIN_LENGTH = 10;
-    // 칭찬 쪽지: '어떤 행동이었나요?'의 최소 글자 수 (띄어쓰기는 세지 않아요)
+    // 오늘의 기록 보기 (글자를 바꾸면 화면에 바로 반영돼요)
+    const PRACTICE_CHOICES = ['잘 했어요', '조금 했어요', '내일 더 열심히 할게요'];
+    const GOAL_CHOICES = ['잘 지켰어요', '노력했어요', '아쉬웠어요'];
+    const GOAL_RESOLVE_CHOICE = '아쉬웠어요'; // 이 보기를 고르면 '내일의 다짐' 칸이 열려요
+    const NOTICE_CHOICES = ['발견했어요', '오늘은 못 찾았어요'];
+    const NOTICE_FOUND_CHOICE = '발견했어요'; // 이 보기를 고르면 '좋은 행동 적기' 칸이 열려요
+    // '좋은 행동 적기'·'내일의 다짐'의 최소 글자 수 (띄어쓰기는 세지 않아요)
     const PRAISE_MIN_LENGTH = 5;
+    const RESOLVE_MIN_LENGTH = 5;
     // 칭찬 쪽지함(모험 지도 화면)에서 처음 보여줄 기간: 최근 며칠 동안의 쪽지
     const PRAISE_RECENT_DAYS = 3;
     // 우리 반 예절 약속: 실천의 성에 도착하면 몇 개까지 적을지
@@ -902,11 +908,7 @@
             bonusBox.classList.toggle('done', !!got);
             bonusBox.textContent = got ? `🎉 ${UI_TEXT.allBonusDone} +${got}P` : `🤝 ${UI_TEXT.allBonusHint} +${bonus}P`;
         }
-        // 완주 목표·공동 보상
-        const target = Math.max(1, Number(state.settings.targetPoints) || 1), earned = Math.max(0, Number(state.bank.earned) || 0);
-        $('targetLabel').textContent = UI_TEXT.targetLabel;
-        $('targetText').textContent = `${earned} / ${target}P`;
-        $('targetFill').style.width = Math.min(100, earned / target * 100) + '%';
+        // 완주 보상 (목표 포인트는 학생 화면에 보여주지 않아요)
         $('prizeLabel').textContent = UI_TEXT.prizeLabel;
         $('prizeText').textContent = state.settings.prizeName || '';
     }
@@ -937,7 +939,10 @@
     // ============================================================
     function openPin(id) { if (checkNewDay())
         renderAll(); activeStudent = id; pinMode = 'student'; const s = state.students.find(x => x.id === id); if (!s || s.active === false)
-        return; $('pinStudentName').textContent = s.name; $('pinInput').value = ''; modal('pinModal', true); setTimeout(() => $('pinInput').focus(), 80); }
+        return; if (s.submittedToday || state.records.some(r => r.date === today() && r.studentId === s.id)) {
+        toast(`${s.name}, 오늘 기록은 이미 제출했어요.`);
+        return;
+    } $('pinStudentName').textContent = s.name; $('pinInput').value = ''; modal('pinModal', true); setTimeout(() => $('pinInput').focus(), 80); }
     $('pinConfirm').addEventListener('click', () => { const s = state.students.find(x => x.id === activeStudent); if (!s)
         return; if ($('pinInput').value !== s.pin) {
         toast('비밀번호가 맞지 않아요.');
@@ -951,21 +956,20 @@
         activeStudent = id;
         const donePills = state.students.filter(x => x.active !== false).map(x => `<span class="student-pill ${x.submittedToday ? 'done' : ''}"><i class="color-dot" style="background:${x.color};width:8px;height:8px"></i>${esc(x.name)} ${x.submittedToday ? '✓' : ''}</span>`).join('');
         const badges = visibleBadges(s).map(k => `<div class="badge"><span class="badge-icon">${BADGES[k].icon}</span>${BADGES[k].name}</div>`).join('') || '<div class="empty-badges">아직 모은 배지가 없어요.</div>';
-        // 칭찬 쪽지: 누구의 좋은 행동이었는지 (자기 자신은 빼고)
-        const others = state.students.filter(x => x.active !== false && x.id !== s.id).map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
-        const praiseBox = `<div class="praise-write hidden" id="praiseWrite"><div class="praise-write-title">💌 칭찬 쪽지 쓰기</div><div class="praise-write-row"><label for="praiseTo">누구의 좋은 행동이었나요?</label><select id="praiseTo"><option value="">고르세요</option>${others}<option value="other">다른 사람 (선생님·어른 등)</option></select><input id="praiseOther" class="hidden" maxlength="20" placeholder="누구였는지 적어 주세요"></div><div class="praise-write-row"><label for="praiseText">어떤 행동이었나요?</label><textarea class="story praise-text" id="praiseText" maxlength="200" placeholder="예: 내가 짐을 들고 있을 때 문을 잡아 줬어요."></textarea></div><div class="required-note">※ ${PRAISE_MIN_LENGTH}글자 이상 적어 주세요. 쪽지는 쓴 사람 이름 없이 칭찬 쪽지함에 붙어요.</div></div>`;
-        // 내가 받은 칭찬 쪽지
-        const received = state.records.filter(r => r.praiseToId === s.id && r.praiseText).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-        const receivedHtml = received.length ? received.slice(0, 5).map(r => `<div class="praise-mini"><span>${esc(r.praiseText)}</span><small>${fmtDate(r.date)}</small></div>`).join('') + (received.length > 5 ? `<div class="praise-more">외 ${received.length - 5}개 더 있어요</div>` : '') : '<div class="empty-badges">아직 받은 쪽지가 없어요.</div>';
-        $('recordBody').innerHTML = `<div class="record-layout"><div><h2 class="record-title">${esc(s.name)}의 오늘 기록</h2><div class="record-sub">정답을 맞히는 시간이 아니라 오늘 하루를 돌아보는 시간이에요.</div>${question('practice', '오늘 나의 실천을 잘 했나요?', ['잘했어요', '조금 했어요', '다음엔 더 해볼래요'])}${question('goal', '공동의 목표를 잘 지켰나요?', ['잘 지켰어요', '노력했어요', '아쉬웠어요'])}${question('notice', '다른 사람의 좋은 행동을 발견했나요?', ['발견했어요', '조금 봤어요', '오늘은 못 찾았어요'], praiseBox)}<div class="q-card"><h3>적고 싶은 이야기를 써보세요.</h3><textarea class="story" id="storyText" placeholder="오늘 나는 ___을(를) 했다. 왜냐하면 ___. 내일은 ___ 해 보고 싶다."></textarea><div class="required-note" id="storyCount">※ ${STORY_MIN_LENGTH}글자 이상 적어야 제출할 수 있어요. (지금 0글자)</div></div><div class="submit-row"><button class="primary" id="submitRecord">오늘의 기록 제출</button></div></div><aside><div class="side-box"><h3>오늘 친구들의 기록</h3><div class="submission-mini">${donePills}</div></div><div class="side-box"><h3>💌 내가 받은 칭찬 쪽지 <small class="praise-count">${received.length}</small></h3><div class="praise-mini-list">${receivedHtml}</div></div><div class="side-box"><h3>내 배지함</h3><div class="badge-list">${badges}</div></div></aside></div>`;
+        // '아쉬웠어요'를 고르면 열리는 내일의 다짐 칸
+        const resolveBox = `<div class="extra-write hidden" id="resolveWrite"><label for="resolveText">내일은 어떻게 할지 다짐을 적어 보세요.</label><textarea class="story extra-text" id="resolveText" maxlength="200" placeholder="예: 내일은 선생님을 만나면 먼저 인사할게요."></textarea><div class="required-note">※ ${RESOLVE_MIN_LENGTH}글자 이상 적어 주세요.</div></div>`;
+        // '발견했어요'를 고르면 열리는 좋은 행동 적기 칸
+        const praiseBox = `<div class="extra-write praise-write hidden" id="praiseWrite"><label for="praiseText">누구의 어떤 행동이었나요? 자유롭게 적어보세요.</label><textarea class="story extra-text" id="praiseText" maxlength="200"></textarea><div class="required-note">※ ${PRAISE_MIN_LENGTH}글자 이상 적어 주세요.</div></div>`;
+        $('recordBody').innerHTML = `<div class="record-layout"><div><h2 class="record-title">${esc(s.name)}의 오늘 기록</h2><div class="record-sub">정답을 맞히는 시간이 아니라 오늘 하루를 돌아보는 시간이에요.</div>${question('practice', '오늘 나의 실천을 잘 했나요?', PRACTICE_CHOICES)}${question('goal', '공동의 목표를 잘 지켰나요?', GOAL_CHOICES, resolveBox)}${question('notice', '다른 사람의 좋은 행동을 발견했나요?', NOTICE_CHOICES, praiseBox)}<div class="q-card"><h3>적고 싶은 이야기를 써보세요.</h3><textarea class="story" id="storyText" placeholder="오늘 나는 ___을(를) 했다. 왜냐하면 ___. 내일은 ___ 해 보고 싶다."></textarea><div class="required-note" id="storyCount">※ ${STORY_MIN_LENGTH}글자 이상 적어야 제출할 수 있어요. (지금 0글자)</div></div><div class="submit-row"><button class="primary" id="submitRecord">오늘의 기록 제출</button></div></div><aside><div class="side-box"><h3>오늘 친구들의 기록</h3><div class="submission-mini">${donePills}</div></div><div class="side-box"><h3>내 배지함</h3><div class="badge-list">${badges}</div></div></aside></div>`;
         document.querySelectorAll('.choice').forEach(b => b.addEventListener('click', () => {
             const g = b.dataset.group;
             document.querySelectorAll(`.choice[data-group="${g}"]`).forEach(x => x.classList.remove('selected'));
             b.classList.add('selected');
+            if (g === 'goal')
+                $('resolveWrite').classList.toggle('hidden', b.dataset.value !== GOAL_RESOLVE_CHOICE);
             if (g === 'notice')
-                $('praiseWrite').classList.toggle('hidden', b.dataset.value === '오늘은 못 찾았어요');
+                $('praiseWrite').classList.toggle('hidden', b.dataset.value !== NOTICE_FOUND_CHOICE);
         }));
-        $('praiseTo').addEventListener('change', () => $('praiseOther').classList.toggle('hidden', $('praiseTo').value !== 'other'));
         const updateCount = () => { const n = textLength($('storyText').value); const el = $('storyCount'); el.textContent = `※ ${STORY_MIN_LENGTH}글자 이상 적어야 제출할 수 있어요. (지금 ${n}글자)`; el.classList.toggle('ok', n >= STORY_MIN_LENGTH); };
         $('storyText').addEventListener('input', updateCount);
         $('submitRecord').addEventListener('click', submitRecord);
@@ -1005,29 +1009,24 @@
             }
             picked[g] = el.dataset.value;
         }
-        // 칭찬 쪽지 (좋은 행동을 발견했다고 고른 경우)
+        // '아쉬웠어요' → 내일의 다짐
+        let resolution = '';
+        if (picked.goal === GOAL_RESOLVE_CHOICE) {
+            resolution = $('resolveText').value.trim();
+            if (textLength(resolution) < RESOLVE_MIN_LENGTH) {
+                toast(`내일의 다짐을 ${RESOLVE_MIN_LENGTH}글자 이상 적어 주세요.`);
+                return;
+            }
+        }
+        // '발견했어요' → 누구의 어떤 행동이었는지
         let praise = null;
-        if (picked.notice !== '오늘은 못 찾았어요') {
-            const toVal = $('praiseTo').value, text = $('praiseText').value.trim();
-            if (!toVal) {
-                toast('누구의 좋은 행동이었는지 골라 주세요.');
-                return;
-            }
-            let toName = '';
-            if (toVal === 'other') {
-                toName = $('praiseOther').value.trim();
-                if (!toName) {
-                    toast('누구였는지 적어 주세요.');
-                    return;
-                }
-            }
-            else
-                toName = state.students.find(x => x.id === toVal)?.name || '';
+        if (picked.notice === NOTICE_FOUND_CHOICE) {
+            const text = $('praiseText').value.trim();
             if (textLength(text) < PRAISE_MIN_LENGTH) {
-                toast(`어떤 행동이었는지 ${PRAISE_MIN_LENGTH}글자 이상 적어 주세요.`);
+                toast(`발견한 좋은 행동을 ${PRAISE_MIN_LENGTH}글자 이상 적어 주세요.`);
                 return;
             }
-            praise = { praiseToId: toVal === 'other' ? '' : toVal, praiseToName: toName, praiseText: text };
+            praise = { praiseText: text };
         }
         const story = $('storyText').value.trim();
         if (textLength(story) < STORY_MIN_LENGTH) {
@@ -1038,7 +1037,7 @@
             toast('오늘 기록은 이미 제출했어요.');
             return;
         }
-        const rec = { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 7), date: today(), studentId: s.id, studentName: s.name, practice: picked.practice, goal: picked.goal, notice: picked.notice, ...(praise || {}), story, points: Math.max(0, Number(state.settings.recordPoints) || 0), createdAt: new Date().toISOString() };
+        const rec = { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 7), date: today(), studentId: s.id, studentName: s.name, practice: picked.practice, goal: picked.goal, notice: picked.notice, ...(praise || {}), ...(resolution ? { resolution } : {}), story, points: Math.max(0, Number(state.settings.recordPoints) || 0), createdAt: new Date().toISOString() };
         const result = applySubmission(rec);
         if (!result) {
             toast('오늘 기록은 이미 제출했어요.');
@@ -1089,7 +1088,7 @@
         requestAnimationFrame(() => { d.style.left = (target.left + target.width * .35 + i * 18) + 'px'; d.style.top = (target.top + target.height * .46) + 'px'; d.style.transform = 'scale(.55)'; d.style.opacity = '.25'; });
         setTimeout(() => d.remove(), 920);
     } }
-    function showSuccess(s, newBadges, bonus = 0, wrotePraise = false) { const b = newBadges.map(k => `<div class="new-badge">${BADGES[k].icon} ${BADGES[k].name}<small>${BADGES[k].desc}</small></div>`).join(''); const bonusHtml = bonus ? `<div class="all-bonus-banner">🎉 오늘 우리 반 <b>모두</b>가 기록을 마쳤어요!<br>함께해서 받은 보너스 <b>+${bonus}P</b></div>` : ''; const praiseHtml = wrotePraise ? `<p class="praise-sent">💌 칭찬 쪽지가 쪽지함에 붙었어요.</p>` : ''; $('successBody').innerHTML = `<div class="success-icon">${iconHTML('backpack', 'lg')}</div><h2>오늘의 기록 완료!</h2><p>우리 반 모험 주머니에 힘을 보탰어요.</p>${praiseHtml}${bonusHtml}${b ? `<div class="new-badges"><b>🎉 새 배지를 얻었어요!</b>${b}</div>` : ''}<div style="margin-top:18px"><button class="primary" id="successClose">확인</button></div>`; $('successClose').onclick = () => modal('successModal', false); modal('successModal', true); }
+    function showSuccess(s, newBadges, bonus = 0, wrotePraise = false) { const b = newBadges.map(k => `<div class="new-badge">${BADGES[k].icon} ${BADGES[k].name}<small>${BADGES[k].desc}</small></div>`).join(''); const bonusHtml = bonus ? `<div class="all-bonus-banner">🎉 오늘 우리 반 <b>모두</b>가 기록을 마쳤어요!<br>함께해서 받은 보너스 <b>+${bonus}P</b></div>` : ''; const praiseHtml = wrotePraise ? `<p class="praise-sent">🌱 발견한 좋은 행동이 쪽지함에 붙었어요.</p>` : ''; $('successBody').innerHTML = `<div class="success-icon">${iconHTML('backpack', 'lg')}</div><h2>오늘의 기록 완료!</h2><p>우리 반 모험 주머니에 힘을 보탰어요.</p>${praiseHtml}${bonusHtml}${b ? `<div class="new-badges"><b>🎉 새 배지를 얻었어요!</b>${b}</div>` : ''}<div style="margin-top:18px"><button class="primary" id="successClose">확인</button></div>`; $('successClose').onclick = () => modal('successModal', false); modal('successModal', true); }
     // ============================================================
     // 9. 모험 지도 화면 그리기
     // ============================================================
@@ -1352,7 +1351,7 @@
         sel.onchange = () => { praiseFilter = sel.value; renderPraiseBoard(); };
         const rows = all.filter(r => praiseFilter === 'all' ? true : praiseFilter === 'recent' ? recentDates.has(r.date) : r.date === praiseFilter);
         $('praiseTotal').textContent = `${rows.length}장`;
-        list.innerHTML = rows.length ? rows.map((r, i) => `<div class="praise-note tone-${i % 4}"><div class="praise-to">To. ${esc(r.praiseToName)}</div><p>${esc(r.praiseText)}</p><small>${fmtDate(r.date)}</small></div>`).join('') : '<div class="backpack-empty">아직 칭찬 쪽지가 없어요. 오늘의 기록에서 좋은 행동을 발견하면 쪽지를 남길 수 있어요.</div>';
+        list.innerHTML = rows.length ? rows.map((r, i) => `<div class="praise-note tone-${i % 4}">${r.praiseToName ? `<div class="praise-to">To. ${esc(r.praiseToName)}</div>` : ''}<p>${esc(r.praiseText)}</p><small>${fmtDate(r.date)}</small></div>`).join('') : '<div class="backpack-empty">아직 칭찬 쪽지가 없어요. 오늘의 기록에서 좋은 행동을 발견하면 쪽지를 남길 수 있어요.</div>';
     }
     function askCastleBuy(key) {
         const it = CASTLE_SHOP.find(x => x.key === key);
@@ -1834,11 +1833,11 @@
         const ms = mysterySettings();
         const probTotal = ['fork', 'merchant', 'mysteryMerchant', 'chest', 'road', 'life'].reduce((a, k) => a + (Number(ep[k]) || 0), 0);
         $('teacherBonus').innerHTML = `<div class="admin-card"><h3>모험 기본 규칙</h3><p class="admin-sub">모험에서 사용하는 포인트 비용과 기본 규칙을 설정해요.</p><div class="adventure-settings-grid"><div class="field"><label>기본 1칸 이동비 (P)</label><input id="setBaseMoveCost" type="number" min="1" value="${state.settings.baseMoveCost}"></div><div class="field"><label>보물상자 운반 추가비용 (P)</label><input id="setChestCarryExtra" type="number" min="0" value="${state.settings.chestCarryExtra}"></div><div class="field"><label>자판기 음료수 가격 (P)</label><input id="setDrinkCost" type="number" min="0" value="${ls.drinkCost}"></div><div class="field"><label>음료 거절 시 다음 이동 무효 확률 (%)</label><input id="setSlowChance" type="number" min="0" max="100" value="${ls.slowChance ?? 50}"></div></div><div class="settings-group-title">이동 후 이벤트 발생확률</div><div class="adventure-settings-grid"><div class="field"><label>선택의 길 (%)</label><input class="event-prob-input" id="setProbFork" type="number" min="0" max="100" step="1" value="${ep.fork}"></div><div class="field"><label>상인 예고 (%)</label><input class="event-prob-input" id="setProbMerchant" type="number" min="0" max="100" step="1" value="${ep.merchant}"></div><div class="field"><label>수상한 상인 (%)</label><input class="event-prob-input" id="setProbMysteryMerchant" type="number" min="0" max="100" step="1" value="${ep.mysteryMerchant ?? 8}"></div><div class="field"><label>보물상자 (%)</label><input class="event-prob-input" id="setProbChest" type="number" min="0" max="100" step="1" value="${ep.chest}"></div><div class="field"><label>길 위 돌발사건 (%)</label><input class="event-prob-input" id="setProbRoad" type="number" min="0" max="100" step="1" value="${ep.road}"></div><div class="field"><label>생활형 이벤트 (%)</label><input class="event-prob-input" id="setProbLife" type="number" min="0" max="100" step="1" value="${ep.life}"></div></div><div class="probability-summary" id="probabilitySummary">현재 이벤트 합계 <strong>${probTotal}%</strong> · 평범한 이동 <strong>${Math.max(0, 100 - probTotal)}%</strong><br>각 확률의 합이 100%를 넘을 수 없습니다.</div></div><div class="admin-card"><h3>선택의 길 설정</h3><p class="admin-sub">선택의 길의 이름·분위기는 코드의 <b>CHOICE_PATH_TYPES</b>에서 여러 종류를 편집할 수 있고, 아래 값은 모든 선택의 길의 좌·우 비용과 이동 범위에 공통 적용됩니다. 왼쪽은 '안전한 길'(최소=최대로 두면 늘 같은 칸), 오른쪽은 '모험 길'(범위가 넓을수록 운이 커져요)로 쓰는 걸 추천해요.</p><div class="adventure-settings-grid"><div class="field"><label>왼쪽 선택지 기본 비용 (P)</label><input id="setForkLeftCost" type="number" min="0" value="${fs.leftCost}"></div><div class="field"><label>왼쪽 선택지 기본 최소 이동</label><input id="setForkLeftMin" type="number" min="1" value="${fs.leftMin}"></div><div class="field"><label>왼쪽 선택지 기본 최대 이동</label><input id="setForkLeftMax" type="number" min="1" value="${fs.leftMax}"></div><div class="field"><label>오른쪽 선택지 기본 비용 (P)</label><input id="setForkRightCost" type="number" min="0" value="${fs.rightCost}"></div><div class="field"><label>오른쪽 선택지 기본 최소 이동</label><input id="setForkRightMin" type="number" min="1" value="${fs.rightMin}"></div><div class="field"><label>오른쪽 선택지 기본 최대 이동</label><input id="setForkRightMax" type="number" min="1" value="${fs.rightMax}"></div></div><div class="fork-balance" id="forkBalance">${forkBalanceHtml(fs)}</div></div><div class="admin-card"><h3>길거리 상인 설정</h3><div class="adventure-settings-grid"><div class="field"><label>상인이 보이는 최소 거리</label><input id="setMerchantMin" type="number" min="1" value="${md.min}"></div><div class="field"><label>상인이 보이는 최대 거리</label><input id="setMerchantMax" type="number" min="1" value="${md.max}"></div><div></div>${SHOP.map(it => `<div class="field"><label>${it.icon} ${it.name} 가격</label><input data-shop-price="${it.key}" type="number" min="0" value="${shopPrice(it.key, it.price)}"></div>`).join('')}</div></div><div class="admin-card"><h3>수상한 상인 설정</h3><p class="admin-sub">각 가격을 골랐을 때 좋은 결과가 나올 확률을 바꿀 수 있어요.</p><div class="adventure-settings-grid"><div class="field"><label>10P 좋은 결과 확률 (%)</label><input id="setMysteryGood10" type="number" min="0" max="100" value="${ms.goodChances[10]}"></div><div class="field"><label>20P 좋은 결과 확률 (%)</label><input id="setMysteryGood20" type="number" min="0" max="100" value="${ms.goodChances[20]}"></div><div class="field"><label>30P 좋은 결과 확률 (%)</label><input id="setMysteryGood30" type="number" min="0" max="100" value="${ms.goodChances[30]}"></div><div class="field"><label>40P 좋은 결과 확률 (%)</label><input id="setMysteryGood40" type="number" min="0" max="100" value="${ms.goodChances[40]}"></div></div></div><div class="admin-card"><h3>길 위 돌발사건 설정</h3><div class="adventure-settings-grid two"><div class="field"><label>통행료 청구서 손실 (P)</label><input id="setRoadLoss" type="number" min="0" value="${rs.loss}"></div><div class="field"><label>행운·감사 보상 (P)</label><input id="setRoadGain" type="number" min="0" value="${rs.gain}"></div></div></div><div class="admin-card"><h3>보물상자 보상 설정</h3><p class="admin-sub">열쇠로 연 보물상자에는 아래에서 선택한 좋은 보상만 등장합니다.</p><div class="bonus-options">${[['early', '수업 3분 일찍 마치기'], ['note', '보너스 포인트 +10P'], ['present', '숲길 안내지도 1개'], ['snack', '작은 간식'], ['free', '쾌속 주행권 1개']].map(([k, n]) => `<label class="bonus-option"><input type="checkbox" data-reward="${k}" ${rewards[k] ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div><div class="actions"><button class="primary" id="saveBonus">모험 설정 저장</button></div></div>`;
-        $('teacherRecords').innerHTML = `<div class="admin-card"><h3>전체 실천 기록</h3><p class="admin-sub">클라우드 연결 없이 이 브라우저에 저장된 다른 날짜·학생의 기록을 볼 수 있어요.</p><div class="filter-row"><div class="field"><label>날짜 필터</label><input id="recordDateFilter" type="date"></div><div class="field"><label>참여자 필터</label><select id="recordStudentFilter"><option value="">전체 학생</option>${state.students.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div></div><div class="table-wrap"><table class="admin-table"><thead><tr><th>날짜</th><th>학생</th><th>나의 실천</th><th>공동 목표</th><th>좋은 행동 발견</th><th>칭찬 쪽지</th><th>이야기</th><th>포인트</th><th>관리</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>`;
+        $('teacherRecords').innerHTML = `<div class="admin-card"><h3>전체 실천 기록</h3><p class="admin-sub">클라우드에 저장된 모든 날짜·학생의 기록을 볼 수 있어요.</p><div class="filter-row"><div class="field"><label>날짜 필터</label><input id="recordDateFilter" type="date"></div><div class="field"><label>참여자 필터</label><select id="recordStudentFilter"><option value="">전체 학생</option>${state.students.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div></div><div class="table-wrap"><table class="admin-table"><thead><tr><th>날짜</th><th>학생</th><th>나의 실천</th><th>공동 목표</th><th>내일의 다짐</th><th>좋은 행동 발견</th><th>발견한 좋은 행동</th><th>이야기</th><th>포인트</th><th>관리</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>`;
         $('teacherBadges').innerHTML = `<div class="admin-card"><h3>배지 지급</h3><p class="admin-sub">수업 중 확인한 활동 배지는 미리 예약해두고, 학생이 다음 기록을 제출할 때 처음 공개돼요.</p><div class="award-grid"><div class="field"><label>학생 선택</label><select id="awardStudent">${active.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div><div class="field"><label>배지 선택</label><select id="awardBadge">${Object.entries(BADGES).filter(([k]) => !['first', 'steady'].includes(k)).map(([k, b]) => `<option value="${k}">${b.icon} ${b.name}</option>`).join('')}</select></div></div><div class="actions"><button class="primary" id="awardBadgeBtn">배지 지급 예약</button></div><div class="badge-catalog">${Object.entries(BADGES).map(([k, b]) => `<div class="catalog-card"><b>${b.icon} ${b.name}</b><small>${b.desc}</small></div>`).join('')}</div></div>`;
         $('teacherBackup').innerHTML = `<div class="admin-card"><h3>☁ 클라우드 저장</h3><p class="admin-sub">기록과 모험 진행은 클라우드(Supabase)에 자동으로 저장되고, 같은 교사 계정으로 연결한 모든 기기에서 함께 보여요. 다른 기기의 변경은 ${Math.round(CLOUD_POLL_MS / 1000)}초마다 확인해요.</p><div class="cloud-info" id="cloudInfo"></div><div class="backup-row"><button class="secondary" id="cloudReloadBtn" type="button">클라우드에서 다시 불러오기</button><button class="danger" id="cloudDisconnectBtn" type="button">이 기기 연결 끊기</button></div></div><div class="admin-card"><h3>백업·복구</h3><p class="admin-sub">클라우드와 별개로, 중요한 시점마다 JSON 백업 파일을 받아 두면 더 안전해요.</p><div class="backup-row"><button class="primary" id="exportJson">전체 백업 JSON</button><button class="secondary" id="exportCsv">기록 CSV</button><label class="secondary" for="importJson" style="cursor:pointer">백업 파일 복구</label><input class="hidden" id="importJson" type="file" accept=".json,application/json"></div><div class="snapshot-note">백업 파일을 복구하면 그 내용이 클라우드에도 저장돼요.</div><div class="danger-zone"><h3>전체 초기화</h3><p class="admin-sub">모든 학생 설정·기록·포인트·모험 진행을 지웁니다.</p><button class="danger" id="resetAll">모든 데이터 초기화</button></div></div>`;
         const total = state.records.length, unique = new Set(state.records.map(r => r.studentId)).size;
-        $('teacherReport').innerHTML = `<div class="report-box"><h2>${esc(UI_TEXT.className)} 활동 요약</h2><p><b>기간:</b> ${esc(state.settings.startDate)} ~ ${esc(state.settings.endDate)}</p><p><b>공동 목표:</b> ${esc(state.settings.goal)}</p><p><b>전체 기록:</b> ${total}회 · 참여 학생 ${unique}명</p><p><b>총 적립 포인트:</b> ${state.bank.earned}P · 임시 ${Number(state.bank.temp || 0)}P · 사용 ${state.bank.used}P · 잔액 ${available()}P</p><p><b>모험 진행:</b> ${state.adventure.step} / ${STAGES.at(-1).step}칸 (${STAGES[currentStageIndex()].name})</p><p><b>최종 공동 보상:</b> ${esc(state.settings.prizeName)}</p><p><b>칭찬 쪽지:</b> ${praiseRecords().length}장 · <b>전원 제출한 날:</b> ${Object.keys(state.bonusDays).length}일</p><h3 style="margin-top:16px">🤝 ${esc(UI_TEXT.promiseTitle)}</h3>${state.promises.length ? `<ol>${state.promises.map(p => `<li>${esc(p)}</li>`).join('')}</ol>` : '<p style="color:#8a96a7">아직 정하지 않았어요. (실천의 성에 도착하면 정해요)</p>'}<h3 style="margin-top:16px">💌 칭찬 쪽지 모음</h3>${praiseRecords().length ? `<ul class="report-praise">${praiseRecords().map(r => `<li><b>To. ${esc(r.praiseToName)}</b> ${esc(r.praiseText)} <small>(${esc(r.date)})</small></li>`).join('')}</ul>` : '<p style="color:#8a96a7">아직 쪽지가 없어요.</p>'}</div><div class="actions"><button class="primary" id="printReport">요약 인쇄</button></div>`;
+        $('teacherReport').innerHTML = `<div class="report-box"><h2>${esc(UI_TEXT.className)} 활동 요약</h2><p><b>기간:</b> ${esc(state.settings.startDate)} ~ ${esc(state.settings.endDate)}</p><p><b>공동 목표:</b> ${esc(state.settings.goal)}</p><p><b>전체 기록:</b> ${total}회 · 참여 학생 ${unique}명</p><p><b>총 적립 포인트:</b> ${state.bank.earned}P · 임시 ${Number(state.bank.temp || 0)}P · 사용 ${state.bank.used}P · 잔액 ${available()}P</p><p><b>모험 진행:</b> ${state.adventure.step} / ${STAGES.at(-1).step}칸 (${STAGES[currentStageIndex()].name})</p><p><b>최종 공동 보상:</b> ${esc(state.settings.prizeName)}</p><p><b>칭찬 쪽지:</b> ${praiseRecords().length}장 · <b>전원 제출한 날:</b> ${Object.keys(state.bonusDays).length}일</p><h3 style="margin-top:16px">🤝 ${esc(UI_TEXT.promiseTitle)}</h3>${state.promises.length ? `<ol>${state.promises.map(p => `<li>${esc(p)}</li>`).join('')}</ol>` : '<p style="color:#8a96a7">아직 정하지 않았어요. (실천의 성에 도착하면 정해요)</p>'}<h3 style="margin-top:16px">💌 칭찬 쪽지 모음</h3>${praiseRecords().length ? `<ul class="report-praise">${praiseRecords().map(r => `<li>${r.praiseToName ? `<b>To. ${esc(r.praiseToName)}</b> ` : ''}${esc(r.praiseText)} <small>(${esc(r.date)})</small></li>`).join('')}</ul>` : '<p style="color:#8a96a7">아직 쪽지가 없어요.</p>'}</div><div class="actions"><button class="primary" id="printReport">요약 인쇄</button></div>`;
         quizBonusDraft = null;
         quizDraft = JSON.parse(JSON.stringify(Object.fromEntries(STAGES.slice(1).map(st => [st.key, quizBank(st.key)]))));
         renderQuizEditor();
@@ -2039,7 +2038,7 @@
             pr.onclick = () => window.print();
     }
     function renderRecordRows() { const body = $('recordRows'); if (!body)
-        return; const d = $('recordDateFilter')?.value || '', sid = $('recordStudentFilter')?.value || ''; const rows = [...state.records].filter(r => (!d || r.date === d) && (!sid || r.studentId === sid)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))); body.innerHTML = rows.length ? rows.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.studentName || state.students.find(s => s.id === r.studentId)?.name || '')}</td><td>${esc(r.practice)}</td><td>${esc(r.goal)}</td><td>${esc(r.notice)}</td><td style="min-width:160px;white-space:normal">${r.praiseText ? `<b>To. ${esc(r.praiseToName)}</b><br>${esc(r.praiseText)}` : '-'}</td><td style="min-width:180px;white-space:normal">${esc(r.story)}</td><td>${Number(r.points) || 0}P</td><td><button class="danger" data-delete-record="${esc(r.id)}" style="padding:6px 9px">삭제</button></td></tr>`).join('') : '<tr><td colspan="9" style="text-align:center;color:#8a96a7">조건에 맞는 기록이 없어요.</td></tr>'; body.querySelectorAll('[data-delete-record]').forEach(b => b.onclick = () => deleteRecord(b.dataset.deleteRecord)); }
+        return; const d = $('recordDateFilter')?.value || '', sid = $('recordStudentFilter')?.value || ''; const rows = [...state.records].filter(r => (!d || r.date === d) && (!sid || r.studentId === sid)).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))); body.innerHTML = rows.length ? rows.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.studentName || state.students.find(s => s.id === r.studentId)?.name || '')}</td><td>${esc(r.practice)}</td><td>${esc(r.goal)}</td><td style="min-width:140px;white-space:normal">${r.resolution ? esc(r.resolution) : '-'}</td><td>${esc(r.notice)}</td><td style="min-width:160px;white-space:normal">${r.praiseText ? `${r.praiseToName ? `<b>To. ${esc(r.praiseToName)}</b><br>` : ''}${esc(r.praiseText)}` : '-'}</td><td style="min-width:180px;white-space:normal">${esc(r.story)}</td><td>${Number(r.points) || 0}P</td><td><button class="danger" data-delete-record="${esc(r.id)}" style="padding:6px 9px">삭제</button></td></tr>`).join('') : '<tr><td colspan="10" style="text-align:center;color:#8a96a7">조건에 맞는 기록이 없어요.</td></tr>'; body.querySelectorAll('[data-delete-record]').forEach(b => b.onclick = () => deleteRecord(b.dataset.deleteRecord)); }
     function deleteRecord(id) { const r = state.records.find(x => x.id === id); if (!r || !confirm('이 기록을 삭제할까요?'))
         return; state.records = state.records.filter(x => x.id !== id); state.bank.earned = Math.max(0, state.bank.earned - (Number(r.points) || 0)); const s = state.students.find(x => x.id === r.studentId); if (s) {
         s.records = state.records.filter(x => x.studentId === s.id).length;
@@ -2056,7 +2055,7 @@
     function download(name, text, type) { const blob = new Blob([text], { type }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 100); }
     function exportJson() { download(`quest_backup_${today()}.json`, JSON.stringify(state, null, 2), 'application/json'); }
     function csvCell(v) { const s = String(v ?? '').replaceAll('"', '""'); return `"${s}"`; }
-    function exportCsv() { const head = ['날짜', '학생', '나의 실천', '공동 목표', '좋은 행동 발견', '칭찬 받은 사람', '칭찬 쪽지', '이야기', '포인트']; const lines = [head, ...state.records.map(r => [r.date, r.studentName, r.practice, r.goal, r.notice, r.praiseToName || '', r.praiseText || '', r.story, r.points])].map(row => row.map(csvCell).join(',')); download(`quest_records_${today()}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8'); }
+    function exportCsv() { const head = ['날짜', '학생', '나의 실천', '공동 목표', '내일의 다짐', '좋은 행동 발견', '발견한 좋은 행동', '이야기', '포인트']; const lines = [head, ...state.records.map(r => [r.date, r.studentName, r.practice, r.goal, r.resolution || '', r.notice, (r.praiseToName ? `To. ${r.praiseToName} ` : '') + (r.praiseText || ''), r.story, r.points])].map(row => row.map(csvCell).join(',')); download(`quest_records_${today()}.csv`, '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8'); }
     function importJson(e) { const f = e.target.files?.[0]; if (!f)
         return; const reader = new FileReader(); reader.onload = () => { try {
         const x = normalize(JSON.parse(reader.result));
