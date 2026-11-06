@@ -128,7 +128,7 @@
         availableLabel: '모은 포인트',
         usedLabel: '사용한 포인트',
         pocketNote: '기록으로 모은 포인트는 다음 수업시간에 다같이 사용해요.',
-        busTitle: '우리 반 모험 버스',
+        busTitle: '모험 버스',
         busHint: '내 좌석을 눌러 오늘의 기록을 시작해요.',
         prizeLabel: '완주 보상',
         allBonusHint: '오늘 모두 기록하면 보너스',
