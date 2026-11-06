@@ -120,20 +120,20 @@
     ];
     // 화면에 보이는 문구: 여기서 직접 고치면 바로 반영돼요 (설정 화면에서는 바꾸지 않아요)
     const UI_TEXT = {
-        className: '학생들 예절 실천',
+        className: '중등영학교 예절 실천',
         headerSubtitle: '실천하는 힘!',
         headline: '나는 오늘 얼마나 예절을 잘 지켰는가?',
         homeDescription: '내가 지키고자 했던 예절을 얼마나 잘 실천했는지 돌아보고, 다른 학생의 바른 행동도 발견해 보세요!',
-        goalLabel: '우리의 공동 목표',
+        goalLabel: '우리 공동 목표',
         availableLabel: '모은 포인트',
         usedLabel: '사용한 포인트',
-        pocketNote: '기록으로 모은 포인트는 다음 수업시간에 우리 반이 함께 사용해요.',
+        pocketNote: '기록으로 모은 포인트는 다음 수업시간에 다같이 사용해요.',
         busTitle: '우리 반 모험 버스',
         busHint: '내 좌석을 눌러 오늘의 기록을 시작해요.',
         prizeLabel: '완주 보상',
         allBonusHint: '오늘 모두 기록하면 보너스',
         allBonusDone: '오늘 전원 기록 완료! 보너스',
-        praiseTitle: '칭찬 쪽지함',
+        praiseTitle: '칭찬함',
         praiseDesc: '친구들이 발견한 좋은 행동이에요. 모험을 떠나기 전에 함께 읽어 봐요.',
         promiseTitle: '우리 반 예절 약속',
     };
