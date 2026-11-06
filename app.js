@@ -166,7 +166,7 @@
         const d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
-    // 시작일·종료일을 기준으로 '합숙 1일차' 같은 문구를 자동으로 만들어요
+    // 시작일·종료일을 기준으로 '교학 1일차' 같은 문구를 자동으로 만들어요
     function dayLabel() {
         const toDay = str => { const [y, m, d] = String(str).split('-').map(Number); return Date.UTC(y, m - 1, d) / 86400000; };
         const n = toDay(today()) - toDay(state.settings.startDate) + 1;
@@ -883,7 +883,6 @@
     function renderTop() {
         $('headerTitle').textContent = UI_TEXT.className;
         $('headerSubtitle').textContent = UI_TEXT.headerSubtitle;
-        $('brandName').textContent = UI_TEXT.className;
         $('dayText').textContent = dayLabel();
         $('headlineText').textContent = UI_TEXT.headline;
         $('homeDescription').textContent = UI_TEXT.homeDescription;

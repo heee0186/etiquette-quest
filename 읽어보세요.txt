@@ -6,7 +6,7 @@
 
 [자주 하는 수정 - 모두 app.js 위쪽]
   화면 문구(제목·홈 설명·버스 안내 등) → UI_TEXT
-  '합숙 N일차'의 '합숙' 글자            → DAY_LABEL  (N은 설정의 시작일·종료일로 자동 계산)
+  '교학 N일차'의 '교학' 글자            → DAY_LABEL  (N은 설정의 시작일·종료일로 자동 계산)
   그림 아이콘(상인·상자·물음표 등)       → ICON_ASSETS (images 폴더의 파일명과 연결, 같은 이름의 PNG로 바꿔 끼우면 돼요)
   수상한 상인 보상 이모지(간식·쿠폰)      → MYSTERY_ICONS
   배지·구간·상점 이모지와 이름            → BADGES / STAGES / STAGE_EVENTS / SHOP
