@@ -895,6 +895,12 @@
         $('busHint').textContent = UI_TEXT.busHint;
         $('homeAvailable').textContent = available();
         $('homeUsed').textContent = state.bank.used;
+        // 연료통 눈금: 한 칸 = 버스 1칸 이동, 다섯 칸이면 가득
+        const fuelMoves = available() / baseMoveCost();
+        const fuelEl = $('fuelLevel');
+        if (fuelEl) fuelEl.style.transform = `scaleY(${Math.min(1, fuelMoves / 5)})`;
+        const fuelLabel = $('fuelCanLabel');
+        if (fuelLabel) fuelLabel.textContent = `버스 연료통: 버스가 ${Math.floor(fuelMoves)}칸 갈 수 있는 연료가 있어요`;
         $('adventureAvailable').textContent = available();
         renderUsageHistory();
         const active = state.students.filter(s => s.active !== false), done = active.filter(s => s.submittedToday).length;

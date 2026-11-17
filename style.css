@@ -4077,3 +4077,20 @@ select:focus-visible {
     margin: 4px -8px 0;
   }
 }
+
+/* 연료통 눈금: 아래에서부터 차올라요 */
+.fuel-can {
+  display: block;
+  height: auto;
+}
+.fuel-level {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+  transition: transform .7s cubic-bezier(.22,1,.36,1);
+}
+@media (prefers-reduced-motion:reduce) {
+  .fuel-level {
+    transition: none;
+  }
+}

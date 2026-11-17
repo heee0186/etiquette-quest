@@ -35,7 +35,31 @@
           <h2 class="pocket-title">버스 연료통</h2>
           <div class="pocket-image-wrap pocket-bounce-scene" aria-label="우리 반 버스 연료통">
             <div class="pocket-shadow" aria-hidden="true"></div>
-            <img class="pocket-bag" alt="별 표시가 있는 빨간 연료통" src="images/fuel-can.svg">
+            <svg class="pocket-bag fuel-can" viewBox="0 0 320 300" role="img" aria-labelledby="fuelCanLabel">
+            <title id="fuelCanLabel">버스 연료통</title>
+            <defs>
+              <linearGradient id="fuelCanBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fc98a"/><stop offset=".5" stop-color="#36a865"/><stop offset="1" stop-color="#22804a"/></linearGradient>
+              <linearGradient id="fuelCanFuel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1a3"/><stop offset="1" stop-color="#f7bd3f"/></linearGradient>
+            </defs>
+            <polygon points="298.0,31.0 300.9,41.1 311.0,44.0 300.9,46.9 298.0,57.0 295.1,46.9 285.0,44.0 295.1,41.1" fill="#ffd86d" stroke="#c89322" stroke-width="3" stroke-linejoin="round"/>
+            <polygon points="40.0,118.0 42.3,125.7 50.0,128.0 42.3,130.3 40.0,138.0 37.7,130.3 30.0,128.0 37.7,125.7" fill="#ffd86d" stroke="#c89322" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M96 92 V62 Q96 46 112 46 H164 Q180 46 180 62 V92" fill="none" stroke="#424851" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M96 92 V62 Q96 46 112 46 H164 Q180 46 180 62 V92" fill="none" stroke="#22804a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <g transform="translate(-9 9) rotate(34 232 96)">
+              <rect x="214" y="62" width="36" height="34" rx="5" fill="#48545f" stroke="#303941" stroke-width="5"/>
+              <rect x="207" y="50" width="50" height="18" rx="8" fill="#ffd86d" stroke="#c89322" stroke-width="4"/>
+            </g>
+            <path d="M90 88 H196 L256 128 V256 Q256 280 232 280 H90 Q66 280 66 256 V112 Q66 88 90 88 Z" fill="url(#fuelCanBody)" stroke="#424851" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M82 250 V116 Q82 104 94 104 H150" fill="none" stroke="#c4f0d2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+            <rect x="88" y="126" width="112" height="134" rx="14" fill="none" stroke="#1d6b3e" stroke-width="4" opacity=".7"/>
+            <path d="M102 140 L186 246 M186 140 L102 246" fill="none" stroke="#1d6b3e" stroke-width="6" stroke-linecap="round" opacity=".5"/>
+            <polygon points="144.0,155.0 154.0,179.2 180.1,181.3 160.2,198.3 166.3,223.7 144.0,210.0 121.7,223.7 127.8,198.3 107.9,181.3 134.0,179.2" fill="#ffd86d" stroke="#c89322" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M130 184 L139 177" fill="none" stroke="#fff6cf" stroke-width="5" stroke-linecap="round"/>
+            <rect x="216" y="142" width="24" height="118" rx="12" fill="#2f3a46" stroke="#424851" stroke-width="4"/>
+            <rect class="fuel-level" id="fuelLevel" x="222" y="148" width="12" height="106" rx="6" fill="url(#fuelCanFuel)"/>
+            <path d="M222 169.2 H234 M222 190.4 H234 M222 211.6 H234 M222 232.8 H234" fill="none" stroke="#2f3a46" stroke-width="2.5"/>
+            <path d="M206 169.2 H213 M206 190.4 H213 M206 211.6 H213 M206 232.8 H213" fill="none" stroke="#1d6b3e" stroke-width="3" stroke-linecap="round"/>
+          </svg>
           </div>
           <div class="numbers">
             <div class="metric"><small id="availableLabel">모은 포인트</small><strong><span id="homeAvailable">0</span><span>P</span></strong></div>
