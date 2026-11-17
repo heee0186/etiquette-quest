@@ -3857,8 +3857,8 @@ select:focus-visible {
   display: none;
 }
 .pocket-bounce-scene .pocket-bag {
-  width: min(58%, 250px);
-  bottom: 30px;
+  width: min(70%, 270px);
+  bottom: 14px;
 }
 .pocket-bounce-scene .pocket-shadow {
   bottom: 22px;
