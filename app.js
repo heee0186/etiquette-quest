@@ -905,7 +905,7 @@
             const got = Number(state.bonusDays[today()]) || 0;
             bonusBox.classList.toggle('hidden', !bonus && !got);
             bonusBox.classList.toggle('done', !!got);
-            bonusBox.textContent = got ? `🎉 ${UI_TEXT.allBonusDone} +${got}P` : `🤝 ${UI_TEXT.allBonusHint} +${bonus}P`;
+            bonusBox.textContent = got ? `${UI_TEXT.allBonusDone} +${got}P` : `${UI_TEXT.allBonusHint} +${bonus}P`;
         }
         // 완주 보상 (목표 포인트는 학생 화면에 보여주지 않아요)
         $('prizeLabel').textContent = UI_TEXT.prizeLabel;
@@ -1176,7 +1176,7 @@
             moveBtn.classList.add('merchant-btn');
         }
         else {
-            moveBtn.innerHTML = state.adventure.carryingChest ? `🚌 ${cost}P 사용 · 1칸 이동 (${iconHTML('chest', 'xs')} 운반 중)` : `🚌 ${cost}P 사용 · 1칸 이동`;
+            moveBtn.innerHTML = state.adventure.carryingChest ? `${cost}P로 1칸 이동 (${iconHTML('chest', 'xs')} 운반 중)` : `${cost}P로 1칸 이동`;
         }
         const status = [];
         if (state.adventure.forkPending)
@@ -1195,7 +1195,7 @@
             status.push(`🪶 여행깃털 할인 ${state.adventure.featherMoves}회 남음`);
         if (state.adventure.compassArmed)
             status.push('🧭 다음 랜덤 이벤트는 보물상자예요.');
-        $('adventureStatus').innerHTML = status.length ? status.map(t => `<span class="status-item">${t}</span>`).join('') : `<span class="status-item">🚌 ${baseMoveCost()}P를 사용하면 모험 버스가 반드시 1칸 이동합니다.</span>`;
+        $('adventureStatus').innerHTML = status.length ? status.map(t => `<span class="status-item">${t}</span>`).join('') : `<span class="status-item">${baseMoveCost()}P를 사용하면 모험 버스가 반드시 1칸 이동합니다.</span>`;
         // 상자를 싣고 가는 중에 열쇠가 있으면 언제든 열 수 있는 버튼 (나중에 열기를 골라도 여기서 열 수 있어요)
         const chestArea = $('chestOpenArea');
         if (chestArea) {

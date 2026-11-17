@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔔%3C/text%3E%3C/svg%3E">
 <title>중등영학교 예절 실천</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark">🧭</div><div class="brand-copy"><h1 id="headerTitle">중등영학교 예절 실천</h1><p id="headerSubtitle"></p></div></div>
+    <div class="brand"><div class="brand-copy"><h1 id="headerTitle">중등영학교 예절 실천</h1><p id="headerSubtitle"></p></div></div>
     <button class="cloud-pill idle" id="cloudPill" type="button">☁ 연결 확인 중</button>
     <nav class="main-tabs" aria-label="주요 화면">
       <button class="main-tab active" data-view="home">홈</button>
@@ -22,7 +23,7 @@
   <main>
     <section id="homeView">
       <div class="panel hero">
-        <div class="hero-topline"><div class="day-pill">📅 <span id="dayText">교학 1일차</span></div></div>
+        <div class="hero-topline"><div class="day-pill"><span id="dayText">교학 1일차</span></div></div>
         <h1 id="headlineText">나는 오늘 얼마나 예절을 잘 지켰는가?</h1>
         <p id="homeDescription">내가 지키고자 했던 예절을 얼마나 잘 실천했는지 돌아보고, 다른 학생의 바른 행동도 발견해 보세요!</p>
         <div class="goal-card"><span class="goal-label" id="goalLabel">우리의 공동 목표</span><strong id="goalText">식사하기 전에 기도를 꼭 모십니다</strong></div>
@@ -42,7 +43,7 @@
             <div class="metric used"><small id="usedLabel">사용한 포인트</small><strong><span id="homeUsed">0</span><span>P</span></strong></div>
           </div>
           <div class="target-box">
-            <div class="target-prize">🎁 <span id="prizeLabel">완주 보상</span> · <b id="prizeText"></b></div>
+            <div class="target-prize"><span id="prizeLabel">완주 보상</span><b id="prizeText"></b></div>
           </div>
           <div class="bank-note" id="pocketNote">기록으로 모은 포인트는 다음 수업시간에 우리 반이 함께 사용해요.</div>
         </div>
@@ -119,13 +120,13 @@
       <div class="adventure-top adventure-command-row">
         <div class="panel adventure-command-card">
           <div class="adventure-command-copy">
-            <div class="adventure-command-kicker">TODAY'S ADVENTURE</div>
+            
             <h2>오늘의 모험</h2>
             <p><b><span id="baseMoveCostText">10</span>P를 사용하면 모험 버스가 1칸 이동</b>합니다. <br> 모험 중 다양한 이벤트를 만날 수 있어요 <br> 모은 포인트로 버스 모험을 떠나볼까요?</p>
             <div class="command-balance">사용 가능 <strong><span id="adventureAvailable">0</span>P</strong></div>
           </div>
           <div class="move-action-wrap command-action">
-            <button class="primary move-main-btn" id="moveBtn">🚌 10P 사용 · 1칸 이동</button>
+            <button class="primary move-main-btn" id="moveBtn">10P로 1칸 이동</button>
             <div class="adventure-status" id="adventureStatus">모험 버스를 타고 한 칸씩 출발해 볼까요?</div>
             <div class="chest-open-area" id="chestOpenArea"></div>
             <div class="item-action-area" id="itemActionArea"></div>
@@ -135,7 +136,7 @@
         <div class="panel adventure-backpack-card">
           <div class="backpack-head">
             <div class="backpack-icon"><img src="images/icon-backpack.png" alt="" class="app-icon"></div>
-            <div><div class="backpack-kicker">ADVENTURE BAG</div><h3>모험 배낭</h3></div>
+            <div><h3>모험 배낭</h3></div>
           </div>
           <div class="backpack-location">
             <b id="currentLocationText">현재 위치 · 출발지</b>
@@ -148,7 +149,7 @@
 
       <div class="journey panel">
         <div class="quest-route">
-          <div class="quest-hud"><div><div class="quest-kicker">CLASS QUEST MAP</div><div class="quest-title">예절 실천 모험</div><div class="quest-sub">모은 포인트로 우리 반 모험 버스를 움직여 다음 장소로 향해요.</div></div><div class="quest-status"><small>현재 이동</small><strong><span id="stepCount">0</span>칸</strong></div></div>
+          <div class="quest-hud"><div><div class="quest-title">예절 실천 모험</div><div class="quest-sub">모은 포인트로 우리 반 모험 버스를 움직여 다음 장소로 향해요.</div></div><div class="quest-status"><small>현재 이동</small><strong><span id="stepCount">0</span>칸</strong></div></div>
           <div class="route-bar-wrap"><div class="route-meta"><span id="routeMetaLeft">출발지</span><span id="routeMetaRight">0 / 50칸</span></div><div class="route-bar-shell"><div class="route-bar" id="routeBar"><div class="route-fill" id="routeFill"></div><div class="route-segments" id="routeSegments"></div><div class="route-orb" id="routeOrb"></div></div></div></div>
           <div class="level-grid" id="levelGrid"></div>
         </div>
@@ -156,7 +157,7 @@
 
       <div class="panel praise-board-card" id="praiseBoard">
         <div class="praise-board-head">
-          <div><div class="praise-kicker">PRAISE NOTES</div><h3><span id="praiseBoardTitle">칭찬 쪽지함</span> <small class="praise-total" id="praiseTotal">0장</small></h3><p id="praiseBoardDesc"></p></div>
+          <div><h3><span id="praiseBoardTitle">칭찬 쪽지함</span> <small class="praise-total" id="praiseTotal">0장</small></h3><p id="praiseBoardDesc"></p></div>
           <select id="praiseDateFilter" class="praise-filter" aria-label="쪽지 기간"></select>
         </div>
         <div class="praise-list" id="praiseList"></div>
@@ -164,7 +165,7 @@
 
       <div class="panel promise-card hidden" id="promiseCard">
         <div class="praise-board-head">
-          <div><div class="praise-kicker">OUR PROMISE</div><h3 id="promiseTitle">우리 반 예절 약속</h3></div>
+          <div><h3 id="promiseTitle">우리 반 예절 약속</h3></div>
           <button class="secondary" id="promiseEdit" type="button">약속 정하기</button>
         </div>
         <div id="promiseBody"></div>
@@ -172,7 +173,7 @@
 
       <div class="panel castle-shop-card hidden" id="castleShopCard">
         <div class="castle-shop-head">
-          <div><div class="castle-shop-kicker">CASTLE TREASURY</div><h3>성 보물창고</h3><p>실천의 성에 도착한 우리 반만 열 수 있어요. 남은 포인트로 특별한 교환권을 받아 보세요.</p></div>
+          <div><h3>성 보물창고</h3><p>실천의 성에 도착한 우리 반만 열 수 있어요. 남은 포인트로 특별한 교환권을 받아 보세요.</p></div>
           <div class="command-balance">사용 가능 <strong><span id="castleAvailable">0</span>P</strong></div>
         </div>
         <div class="merchant-grid castle-grid" id="castleShopGrid"></div>
@@ -191,7 +192,7 @@
   </main>
 </div>
 
-<button class="teacher-entry" id="teacherEntry" aria-label="선생님 관리">⚙</button>
+<button class="teacher-entry" id="teacherEntry" aria-label="선생님 관리">선생님 관리</button>
 <div class="toast" id="toast"></div>
 
 <div class="cloud-gate hidden" id="cloudGate">
@@ -229,7 +230,7 @@
   <div class="modal small adventure-event-modal" role="dialog" aria-modal="true" aria-labelledby="adventureEventTitle">
     <div class="modal-body adventure-event-body">
       <div class="adventure-event-icon" id="adventureEventIcon">✨</div>
-      <div class="adventure-event-kicker">ADVENTURE EVENT</div>
+      
       <h2 id="adventureEventTitle">길 위의 이벤트</h2>
       <div class="adventure-event-text" id="adventureEventText"></div>
       <div class="adventure-event-actions" id="adventureEventActions"></div>

@@ -3,18 +3,25 @@
    ========================================================== */
 
 :root {
-  --bg: #eef4f9;
+  --bg: #f3f5f8;
   --panel: #fff;
-  --ink: #172033;
-  --muted: #718096;
-  --line: #dfe7ef;
-  --navy: #243b73;
+  --ink: #1b2540;
+  --muted: #677489;
+  --line: #dbe1ea;
+  --navy: #27407a;
   --navy2: #314983;
   --soft: #eef1ff;
   --gold: #e7bf49;
   --green: #42b883;
-  --shadow: 0 18px 44px rgba(35,55,90,.10);
-  --radius: 26px;
+  --shadow: none;
+  --radius: 16px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --title: #1b2540;
+  --kicker: #677489;
+  --content: 940px;
 }
 
 * {
@@ -23,8 +30,8 @@
 
 body {
   margin: 0;
-  font-family: Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
-  background: linear-gradient(180deg,#eef5fb,#f8fafc 55%,#edf2f7);
+  font-family: "Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  background: var(--bg);
   color: var(--ink);
 }
 
@@ -67,7 +74,7 @@ button {
   background: #f1f4f8;
   width: 36px;
   height: 36px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font-size: 20px;
   color: #66758b;
 }
@@ -76,9 +83,9 @@ button {
   border: 0;
   background: linear-gradient(135deg,#415ca8,#263d7c);
   color: #fff;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 12px 18px;
-  font-weight: 950;
+  font-weight: 700;
   box-shadow: 0 8px 18px rgba(47,67,122,.2);
 }
 
@@ -86,18 +93,18 @@ button {
   border: 1px solid #d8e0e9;
   background: #fff;
   color: #445269;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 11px 16px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .danger {
   border: 1px solid #f0caca;
   background: #fff7f7;
   color: #a84c4c;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 10px 15px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .form-grid {
@@ -109,7 +116,7 @@ button {
 .field input {
   width: 100%;
   border: 1px solid #dbe2ea;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 11px;
   background: #fff;
 }
@@ -117,14 +124,14 @@ button {
 .field select {
   width: 100%;
   border: 1px solid #dbe2ea;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 11px;
   background: #fff;
 }
 
 .field label {
   display: block;
-  font-weight: 900;
+  font-weight: 700;
   color: #728097;
   margin: 0 0 6px;
   font-size: 13px;
@@ -137,7 +144,7 @@ button {
 .field textarea {
   width: 100%;
   border: 1px solid #dbe2ea;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 11px;
   background: #fff;
   min-height: 76px;
@@ -202,7 +209,7 @@ button {
 .brand-mark {
   width: 42px;
   height: 42px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   display: grid;
   place-items: center;
   background: #e9edff;
@@ -225,7 +232,7 @@ button {
 .brand-copy p {
   margin: 4px 0 0;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 500;
   color: #7c899b;
   white-space: nowrap;
   overflow: hidden;
@@ -235,7 +242,7 @@ button {
 .main-tabs {
   display: flex;
   background: #e7edf5;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 4px;
   gap: 4px;
 }
@@ -257,8 +264,8 @@ button {
   border: 0;
   background: transparent;
   padding: 10px 18px;
-  border-radius: 12px;
-  font-weight: 900;
+  border-radius: var(--r-md);
+  font-weight: 700;
   color: #65738c;
   font-size: 16px;
 }
@@ -301,7 +308,7 @@ button {
   margin-top: 18px;
   background: #eef1ff;
   border: 1px solid #d9dfff;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   padding: 14px 16px;
   color: #26345b;
 }
@@ -309,7 +316,7 @@ button {
 .hero-title {
   position: relative;
   z-index: 1;
-  font-weight: 1000;
+  font-weight: 700;
   line-height: 1.05;
   letter-spacing: -.055em;
   color: #18325e;
@@ -324,7 +331,7 @@ button {
   letter-spacing: -.045em;
   margin: 18px 0 10px;
   white-space: pre-line;
-  font-size: 32px;
+  font-size: 34px;
 }
 
 .hero p {
@@ -332,9 +339,9 @@ button {
   z-index: 1;
   margin: 0;
   color: var(--muted);
-  font-weight: 750;
+  font-weight: 500;
   line-height: 1.65;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .day-pill {
@@ -345,7 +352,7 @@ button {
   background: #f1f3ff;
   color: #3f55b4;
   padding: 8px 13px;
-  font-weight: 950;
+  font-weight: 700;
   box-shadow: inset 0 0 0 1px #e2e6ff;
   font-size: 14px;
 }
@@ -353,14 +360,14 @@ button {
 .goal-label {
   display: block;
   color: #5266d4;
-  font-weight: 950;
+  font-weight: 700;
   margin-bottom: 5px;
   font-size: 13px;
 }
 
 .goal-card strong {
   letter-spacing: -.02em;
-  font-size: 19px;
+  font-size: 18px;
 }
 
 
@@ -377,7 +384,7 @@ button {
 
 .metric {
   padding: 16px 14px;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   background: #fffaf0;
   border: 1px solid #f1dfaf;
   text-align: center;
@@ -393,7 +400,7 @@ button {
 }
 
 .pocket-art-wrap {
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   overflow: hidden;
   background: #fff9dc;
   border: 1px solid #f3df9a;
@@ -417,7 +424,7 @@ button {
   min-height: 250px;
   padding: 2px 8px 0;
   background: linear-gradient(180deg,#fffdf5 0%,#fff8d9 100%);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   display: none!important;
 }
 
@@ -437,11 +444,11 @@ button {
 
 .pocket-title {
   margin: 0 0 12px;
-  font-size: 25px;
+  font-size: 26px;
   line-height: 1.15;
   letter-spacing: -.035em;
   color: #263b67;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .metric strong {
@@ -449,12 +456,12 @@ button {
   margin-top: 6px;
   letter-spacing: -.04em;
   color: #a75a10;
-  font-size: 42px;
+  font-size: 40px;
 }
 
 .metric.used strong {
   color: #334f78;
-  font-size: 39px;
+  font-size: 40px;
 }
 
 .metric strong span {
@@ -465,7 +472,7 @@ button {
 
 .metric small {
   color: #866838;
-  font-weight: 900;
+  font-weight: 700;
   font-size: 16px;
 }
 
@@ -479,14 +486,14 @@ button {
   line-height: 1.2;
   letter-spacing: -.02em;
   color: #263b67;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .used-places-box {
   flex: 1;
   background: #ffffff;
   border: 1px solid #e4eaf2;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   padding: 18px;
   box-shadow: 0 8px 24px rgba(33,55,93,.05);
   display: flex;
@@ -498,7 +505,7 @@ button {
   color: #91a0b5;
   font-size: 14px;
   line-height: 1.6;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .home-grid {
@@ -527,7 +534,7 @@ button {
 
 .pocket-image-wrap {
   position: relative;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   border: 1px solid #f2df9e;
   height: auto;
   aspect-ratio: 2048/940;
@@ -560,7 +567,7 @@ button {
   aspect-ratio: auto;
   background: linear-gradient(180deg,#fffdf8 0%,#ffffff 100%);
   border: 1px solid #efe6c5;
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   overflow: hidden;
   padding: 0;
   display: block;
@@ -631,7 +638,7 @@ button {
 .usage-summary-icon {
   width: 30px;
   height: 30px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   background: #f5f8fc;
   display: grid;
   place-items: center;
@@ -646,7 +653,7 @@ button {
 
 .usage-summary-value {
   font-size: 14px;
-  font-weight: 1000;
+  font-weight: 700;
   color: #40577e;
   white-space: nowrap;
 }
@@ -654,24 +661,24 @@ button {
 .usage-summary-value small {
   font-size: 11px;
   color: #8b98aa;
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .usage-summary-total {
   margin-top: 4px;
   padding: 11px 12px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #f2f6fb;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: #66768d;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .usage-summary-total strong {
-  font-size: 17px;
+  font-size: 16px;
   color: #2e4670;
 }
 
@@ -694,11 +701,11 @@ button {
 
 .bus-head h2 {
   margin: 0 0 12px;
-  font-size: 25px;
+  font-size: 26px;
   line-height: 1.15;
   letter-spacing: -.035em;
   color: #263b67;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .bus-seat:hover {
@@ -764,7 +771,7 @@ button {
   top: 4px;
   width: 21px;
   height: 21px;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .bus-seat.submitted:after {
@@ -786,7 +793,7 @@ button {
 .bus-head p {
   margin: 0;
   color: #8290a3;
-  font-weight: 750;
+  font-weight: 500;
   font-size: 13px;
 }
 
@@ -807,7 +814,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 4px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   font-size: 13px;
 }
 
@@ -819,13 +826,13 @@ button {
   justify-content: center;
   gap: 4px;
   color: #24334e;
-  font-weight: 950;
+  font-weight: 700;
   transition: .16s;
   overflow: hidden;
   height: auto;
   aspect-ratio: 1/1;
   border: 2px solid rgba(73,69,63,.45);
-  border-radius: 15px;
+  border-radius: var(--r-md);
   box-shadow: inset 0 -5px 0 rgba(0,0,0,.07),0 4px 8px rgba(42,51,62,.12);
   padding: 4px;
   width: 30.5%;
@@ -894,7 +901,7 @@ button {
   max-height: 92vh;
   overflow: auto;
   background: #fff;
-  border-radius: 26px;
+  border-radius: var(--r-xl);
   box-shadow: 0 30px 80px rgba(15,25,45,.28);
   border: 1px solid #e3e9f0;
 }
@@ -927,7 +934,7 @@ button {
 .pin-title {
   text-align: center;
   font-size: 18px;
-  font-weight: 950;
+  font-weight: 700;
   margin: 4px 0 8px;
 }
 
@@ -940,12 +947,12 @@ button {
 
 .pin-input {
   width: 100%;
-  font-size: 28px;
+  font-size: 30px;
   letter-spacing: .35em;
   text-align: center;
   padding: 13px;
   border: 2px solid #d9e1ea;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   outline: none;
 }
 
@@ -977,7 +984,7 @@ button {
 .q-card {
   padding: 17px 18px;
   border: 1px solid #e2e7ee;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   margin-bottom: 12px;
   background: #fbfcfe;
 }
@@ -998,7 +1005,7 @@ button {
   width: 100%;
   min-height: 120px;
   border: 2px solid #dce3eb;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 14px;
   resize: vertical;
   outline: none;
@@ -1016,7 +1023,7 @@ button {
 
 .side-box {
   border: 1px solid #e3e8ef;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   padding: 16px;
   background: #fafbfd;
   margin-bottom: 12px;
@@ -1042,7 +1049,7 @@ button {
 .badge-icon {
   width: 28px;
   height: 28px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   display: grid;
   place-items: center;
   background: #eef1ff;
@@ -1068,7 +1075,7 @@ button {
   width: 70px;
   height: 70px;
   margin: 0 auto 12px;
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   display: grid;
   place-items: center;
   background: linear-gradient(135deg,#e7f7ee,#dce7ff);
@@ -1093,17 +1100,17 @@ button {
 .new-badge {
   padding: 12px 14px;
   border: 1px solid #dfe6ef;
-  border-radius: 15px;
+  border-radius: var(--r-md);
   background: #fbfcff;
   margin-top: 8px;
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .new-badge small {
   display: block;
   color: #8490a3;
   margin-top: 3px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .record-title {
@@ -1119,7 +1126,7 @@ button {
 
 .q-card h3 {
   margin: 0 0 12px;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .choice {
@@ -1127,9 +1134,9 @@ button {
   background: #fff;
   border-radius: 999px;
   padding: 9px 13px;
-  font-weight: 850;
+  font-weight: 600;
   color: #556276;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .side-box h3 {
@@ -1145,7 +1152,7 @@ button {
   border-radius: 999px;
   background: #eef2f6;
   color: #778499;
-  font-weight: 850;
+  font-weight: 600;
   font-size: 13px;
 }
 
@@ -1156,8 +1163,8 @@ button {
   padding: 9px 11px;
   background: #fff;
   border: 1px solid #e0e6ee;
-  border-radius: 14px;
-  font-weight: 900;
+  border-radius: var(--r-md);
+  font-weight: 700;
   font-size: 13px;
 }
 
@@ -1193,19 +1200,19 @@ button {
 
 .bank-kicker {
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 700;
   letter-spacing: .08em;
   color: #d2dcff;
 }
 
 .bank-points {
-  font-size: 46px;
-  font-weight: 950;
+  font-size: 44px;
+  font-weight: 700;
   margin-top: 8px;
 }
 
 .bank-points span {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .move-cost {
@@ -1214,8 +1221,8 @@ button {
   top: 24px;
   background: #e5ba43;
   padding: 13px 17px;
-  border-radius: 16px;
-  font-weight: 950;
+  border-radius: var(--r-lg);
+  font-weight: 700;
 }
 
 .bank-divider {
@@ -1228,7 +1235,7 @@ button {
   font-size: 13px;
   color: #e1e7ff;
   line-height: 1.65;
-  font-weight: 750;
+  font-weight: 500;
 }
 
 .inventory {
@@ -1240,10 +1247,10 @@ button {
 
 .inv {
   background: rgba(255,255,255,.11);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 6px 9px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .key-card {
@@ -1256,11 +1263,11 @@ button {
 .key-icon {
   width: 52px;
   height: 52px;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   background: #f3d36a;
   display: grid;
   place-items: center;
-  font-size: 25px;
+  font-size: 26px;
   flex: none;
 }
 
@@ -1284,7 +1291,7 @@ button {
 
 .key-state {
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   color: #8c7a4f;
 }
 
@@ -1312,7 +1319,7 @@ button {
 .quest-kicker {
   color: #bfc9ff;
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 700;
   letter-spacing: .09em;
 }
 
@@ -1324,7 +1331,7 @@ button {
   display: block;
   color: #bec9fb;
   font-size: 11px;
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .quest-status strong {
@@ -1372,7 +1379,7 @@ button {
 }
 
 .quest-title {
-  font-weight: 950;
+  font-weight: 700;
   margin-top: 5px;
   font-size: 26px;
 }
@@ -1386,14 +1393,14 @@ button {
 .route-meta {
   display: flex;
   justify-content: space-between;
-  font-weight: 850;
+  font-weight: 600;
   color: #d6dcff;
   margin-bottom: 8px;
   font-size: 13px;
 }
 
 .level-no {
-  font-weight: 950;
+  font-weight: 700;
   letter-spacing: .12em;
   color: #aeb9f2;
   font-size: 11px;
@@ -1401,15 +1408,15 @@ button {
 
 .level-name {
   margin-top: 4px;
-  font-weight: 900;
+  font-weight: 700;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .level-status {
   margin-top: 6px;
   color: #bfc8ef;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 11px;
 }
 
@@ -1417,7 +1424,7 @@ button {
   position: absolute;
   right: 8px;
   top: 8px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   display: grid;
   place-items: center;
   z-index: 3;
@@ -1437,7 +1444,7 @@ button {
 .level-card {
   position: relative;
   min-width: 0;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(222,228,255,.16);
@@ -1577,7 +1584,7 @@ button {
 .shop-item {
   border: 1px solid #e0e6ee;
   background: #fbfcfe;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 13px;
   text-align: left;
 }
@@ -1599,9 +1606,9 @@ button {
   background: #eef1ff;
   color: #4f60b5;
   padding: 5px 8px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   font-size: 11px;
-  font-weight: 950;
+  font-weight: 700;
 }
 
 .control-card h2 {
@@ -1631,7 +1638,7 @@ button {
 .event-box {
   margin-top: 15px;
   padding: 15px;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   background: #f6f8fb;
   border: 1px dashed #cbd5e0;
   color: #637187;
@@ -1668,7 +1675,7 @@ button {
   margin-top: 10px;
   color: #78869a;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.45;
 }
 
@@ -1697,28 +1704,28 @@ button {
 }
 
 .adventure-command-kicker {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: .16em;
-  font-weight: 1000;
+  font-weight: 700;
   color: #8c98ad;
   margin-bottom: 5px;
 }
 
 .backpack-kicker {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: .16em;
-  font-weight: 1000;
+  font-weight: 700;
   color: #8c98ad;
   margin-bottom: 5px;
 }
 
 .adventure-command-card h2 {
   margin: 0 0 12px;
-  font-size: 25px;
+  font-size: 26px;
   line-height: 1.15;
   letter-spacing: -.035em;
   color: #263b67;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .adventure-command-card p {
@@ -1760,7 +1767,7 @@ button {
 .backpack-icon {
   width: 48px;
   height: 48px;
-  border-radius: 15px;
+  border-radius: var(--r-md);
   display: grid;
   place-items: center;
   font-size: 26px;
@@ -1769,17 +1776,17 @@ button {
 
 .backpack-head h3 {
   margin: 0 0 12px;
-  font-size: 25px;
+  font-size: 26px;
   line-height: 1.15;
   letter-spacing: -.035em;
   color: #263b67;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .backpack-location {
   margin-top: 14px;
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #fff;
   border: 1px solid #eee8dc;
   display: grid;
@@ -1794,7 +1801,7 @@ button {
 .backpack-location span {
   font-size: 11px;
   color: #8893a5;
-  font-weight: 750;
+  font-weight: 500;
 }
 
 .backpack-chip {
@@ -1802,12 +1809,12 @@ button {
   align-items: center;
   gap: 4px;
   padding: 7px 9px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   background: #f5f7fa;
   border: 1px solid #e5e9ef;
   color: #647187;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .backpack-chip b {
@@ -1832,8 +1839,8 @@ button {
 
 .compact-key-btn {
   padding: 7px 10px;
-  font-size: 10px;
-  border-radius: 9px;
+  font-size: 11px;
+  border-radius: var(--r-sm);
   opacity: .72;
 }
 
@@ -1869,9 +1876,9 @@ button {
   align-items: baseline;
   gap: 7px;
   padding: 7px 11px;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   background: linear-gradient(135deg,#f0f7ff 0%,#e8f1ff 100%);
   color: #46618d;
 }
@@ -1879,22 +1886,22 @@ button {
 .move-main-btn {
   width: 100%;
   min-height: 58px;
-  font-size: 17px;
-  border-radius: 18px;
+  font-size: 16px;
+  border-radius: var(--r-lg);
   padding: 15px 24px;
   border: none;
   background: linear-gradient(135deg,#4664d6 0%,#3550b6 100%);
   color: #fff;
-  font-weight: 1000;
+  font-weight: 700;
   box-shadow: 0 10px 22px rgba(53,80,182,.22);
 }
 
 .item-use-btn {
   border: 1px solid #d8e0e9;
   color: #445269;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 8px 11px;
-  font-weight: 900;
+  font-weight: 700;
   font-size: 12px;
   background: linear-gradient(135deg,#ffffff 0%,#f4f8ff 100%);
 }
@@ -1910,7 +1917,7 @@ button {
 .backpack-empty {
   color: #92a0b4;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   padding: 7px 2px;
 }
 
@@ -1968,10 +1975,10 @@ button {
   border: 1px solid #e1e7ef;
   background: linear-gradient(135deg,#ffffff 0%,#f6f9fd 100%);
   color: #647187;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   padding: 8px 10px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2064,9 +2071,9 @@ button {
 }
 
 .adventure-event-kicker {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: .18em;
-  font-weight: 1000;
+  font-weight: 700;
   color: #8794a8;
   margin-bottom: 6px;
 }
@@ -2107,7 +2114,7 @@ button {
   text-wrap: balance;
   margin-top: 12px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #f5f7fb;
   color: #718096;
   font-size: 13px;
@@ -2135,12 +2142,12 @@ button {
 .stage-arrival-note {
   margin-top: 12px;
   padding: 11px 13px;
-  border-radius: 13px;
+  border-radius: var(--r-md);
   background: #eef8ff;
   border: 1px solid #d5ecfb;
   color: #55728c;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.55;
 }
 
@@ -2171,10 +2178,10 @@ button {
 .mystery-buy {
   border: 1px solid #ded7f4;
   background: linear-gradient(180deg,#fff,#f7f4ff);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 17px 10px;
   color: #493d72;
-  font-weight: 1000;
+  font-weight: 700;
   min-height: 105px;
   box-shadow: 0 7px 18px rgba(72,57,117,.08);
 }
@@ -2208,7 +2215,7 @@ button {
   margin-top: 12px;
   color: #7d7197;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.5;
 }
 
@@ -2230,9 +2237,9 @@ button {
   min-width: 0;
   padding: 14px 18px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -.01em;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   border: 2px solid;
   transition: transform .1s, box-shadow .1s;
 }
@@ -2291,7 +2298,7 @@ button {
   text-align: left;
   background: #fff;
   border: 2px solid var(--edge);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   box-shadow: 0 4px 0 var(--edge);
   cursor: pointer;
   transition: transform .12s, box-shadow .12s;
@@ -2323,7 +2330,7 @@ button {
   place-items: center;
   width: 46px;
   height: 46px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: var(--tone);
   font-size: 26px;
   line-height: 1;
@@ -2341,7 +2348,7 @@ button {
   display: block;
   margin: 0;
   color: #2b3a5f;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.3;
 }
 
@@ -2363,7 +2370,7 @@ button {
   box-shadow: inset 0 -2px 0 rgba(160, 100, 0, .18);
   color: #6b4300;
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 /* ----------------------------------------------------------
@@ -2387,13 +2394,13 @@ button {
 .castle-shop-kicker {
   color: #b58a1b;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: .09em;
 }
 
 .castle-shop-head h3 {
   margin: 4px 0 6px;
-  font-size: 24px;
+  font-size: 26px;
   color: #3a2f12;
 }
 
@@ -2417,7 +2424,7 @@ button {
 
 .quiz-q {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.5;
   color: #2b3a5f;
 }
@@ -2470,20 +2477,20 @@ button {
 .student-edit-row input {
   width: 100%;
   border: 1px solid #dbe2ea;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 9px;
 }
 
 .student-edit-row select {
   width: 100%;
   border: 1px solid #dbe2ea;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 9px;
 }
 
 .seat-index {
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 700;
   color: #7b8798;
 }
 
@@ -2503,7 +2510,7 @@ button {
 .catalog-card {
   padding: 13px;
   border: 1px solid #e1e7ee;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #fbfcfe;
 }
 
@@ -2543,19 +2550,19 @@ button {
 .teacher-tab {
   border: 1px solid #dce3eb;
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 9px 12px;
-  font-weight: 900;
+  font-weight: 700;
   color: #65738a;
   font-size: 14px;
 }
 
 .today-chip {
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   background: #eef2f6;
   color: #718096;
-  font-weight: 850;
+  font-weight: 600;
   font-size: 13px;
 }
 
@@ -2591,7 +2598,7 @@ button {
 
 .admin-card {
   border: 1px solid #e2e7ee;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   padding: 18px;
   background: #fbfcfe;
   margin-bottom: 14px;
@@ -2617,7 +2624,7 @@ button {
 
 .metric-admin {
   padding: 15px;
-  border-radius: 15px;
+  border-radius: var(--r-md);
   background: #f6f8fb;
   border: 1px solid #e4e9ef;
 }
@@ -2626,20 +2633,20 @@ button {
   display: block;
   color: #7d899a;
   font-size: 12px;
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .metric-admin strong {
   display: block;
   margin-top: 5px;
-  font-size: 25px;
+  font-size: 26px;
   color: #233c72;
 }
 
 .table-wrap {
   overflow: auto;
   border: 1px solid #e3e8ee;
-  border-radius: 14px;
+  border-radius: var(--r-md);
 }
 
 .admin-table {
@@ -2664,7 +2671,7 @@ button {
   vertical-align: top;
   background: #f6f8fb;
   color: #67758a;
-  font-weight: 900;
+  font-weight: 700;
   position: sticky;
   top: 0;
 }
@@ -2699,7 +2706,7 @@ button {
   gap: 9px;
   padding: 11px;
   border: 1px solid #e2e7ee;
-  border-radius: 13px;
+  border-radius: var(--r-md);
   background: #fff;
   font-size: 13px;
 }
@@ -2713,7 +2720,7 @@ button {
 .snapshot-note {
   margin-top: 12px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #f2f6ff;
   color: #5d6c86;
   font-size: 12px;
@@ -2724,14 +2731,14 @@ button {
   margin-top: 16px;
   padding: 14px;
   border: 1px solid #f0d0d0;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #fff8f8;
 }
 
 .report-box {
   padding: 16px;
   border: 1px solid #e1e7ee;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #fff;
   line-height: 1.7;
 }
@@ -2790,17 +2797,17 @@ button {
   margin: 18px 0 8px;
   color: #425273;
   font-size: 14px;
-  font-weight: 1000;
+  font-weight: 700;
 }
 
 .probability-summary {
   margin-top: 10px;
   padding: 11px 13px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #eef7ff;
   color: #526783;
   font-size: 12px;
-  font-weight: 850;
+  font-weight: 600;
   line-height: 1.5;
 }
 
@@ -2825,12 +2832,12 @@ button {
   background: #1d2942;
   color: white;
   padding: 11px 16px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   opacity: 0;
   pointer-events: none;
   transition: .2s;
   z-index: 100;
-  font-weight: 850;
+  font-weight: 600;
   font-size: 13px;
 }
 
@@ -2850,7 +2857,7 @@ button {
   background: #e8c354;
   color: #fff;
   font-size: 11px;
-  font-weight: 950;
+  font-weight: 700;
   box-shadow: 0 6px 18px rgba(191,146,25,.35);
   pointer-events: none;
   transition: all .85s cubic-bezier(.2,.8,.2,1);
@@ -2907,12 +2914,12 @@ button {
   margin-top: 12px;
   padding: 13px 18px;
   border: 2px solid #e3b53a;
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   background: linear-gradient(180deg, #ffe58a, #ffd04d);
   box-shadow: 0 4px 0 #e3b53a;
   color: #6b4300;
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -3209,7 +3216,7 @@ button {
   .bus-seat .seat-no {
     width: 18px;
     height: 18px;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .topbar {
@@ -3221,7 +3228,7 @@ button {
   }
 
   .brand-copy h1 {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .main-tab {
@@ -3230,15 +3237,15 @@ button {
   }
 
   .hero-title {
-    font-size: 33px;
+    font-size: 34px;
   }
 
   .hero h1 {
-    font-size: 25px;
+    font-size: 26px;
   }
 
   .hero p {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .metric-grid-admin {
@@ -3283,7 +3290,7 @@ button {
   }
 
   .metric strong {
-    font-size: 37px;
+    font-size: 40px;
   }
 
   .metric.used strong {
@@ -3341,7 +3348,7 @@ button {
   }
 
   .command-action .move-main-btn {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .adventure-settings-grid {
@@ -3419,7 +3426,7 @@ button {
 .target-box {
   margin-top: 12px;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   background: #fffaf0;
   border: 1px solid #f1dfaf;
 }
@@ -3430,7 +3437,7 @@ button {
   gap: 8px;
   color: #866838;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
 }
 .target-head b { color: #a75a10; font-size: 16px; }
 .target-bar {
@@ -3451,7 +3458,7 @@ button {
   text-align: center;
   color: #75829a;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 500;
 }
 .target-prize b { color: #263b67; }
 
@@ -3459,18 +3466,18 @@ button {
 .all-bonus-hint {
   margin-top: 8px;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #eef1ff;
   color: #35499c;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
   text-align: center;
 }
 .all-bonus-hint.done { background: #e6f7ee; color: #1f7a4d; }
 .all-bonus-banner {
   margin: 12px 0 0;
   padding: 12px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #e6f7ee;
   color: #1f7a4d;
   line-height: 1.5;
@@ -3480,19 +3487,19 @@ button {
 .extra-write {
   margin-top: 14px;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #f5f7fb;
   border: 1px dashed #c9d3e3;
   display: grid;
   gap: 8px;
 }
-.extra-write label { font-size: 14px; font-weight: 850; color: #44506a; }
+.extra-write label { font-size: 14px; font-weight: 600; color: #44506a; }
 .extra-text { min-height: 80px; background: #fff; }
 .praise-write { background: #f1faeb; border-color: #b9dfa4; }
 .praise-write label { color: #3f6b2a; }
 .praise-write .extra-text:focus { border-color: #8cc56f; }
 .required-note.ok { color: #1f7a4d; }
-.praise-sent { color: #4c8a2f; font-weight: 800; }
+.praise-sent { color: #4c8a2f; font-weight: 600; }
 
 /* 모험 지도: 칭찬 쪽지함 (연한 연두색) */
 .praise-board-card,
@@ -3510,16 +3517,16 @@ button {
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.praise-kicker { color: #5f9a3e; font-size: 12px; font-weight: 900; letter-spacing: .09em; }
+.praise-kicker { color: #5f9a3e; font-size: 12px; font-weight: 700; letter-spacing: .09em; }
 .promise-card .praise-kicker { color: #2f9466; }
-.praise-board-head h3 { margin: 4px 0 6px; font-size: 24px; color: #2f4a22; }
+.praise-board-head h3 { margin: 4px 0 6px; font-size: 26px; color: #2f4a22; }
 .promise-card .praise-board-head h3 { color: #1f4a35; }
 .praise-board-head p { margin: 0; color: #6f8166; font-size: 14px; }
 .praise-total { font-size: 14px; color: #5f9a3e; }
 .praise-filter {
   padding: 9px 12px;
   border: 2px solid #cfe8c0;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font: inherit;
   background: #fff;
 }
@@ -3539,14 +3546,14 @@ button {
 .praise-note.tone-1 { background: #e8f6dd; }
 .praise-note.tone-2 { background: #f4fbe6; }
 .praise-note.tone-3 { background: #e6f5e4; }
-.praise-to { font-weight: 1000; color: #2f4a22; }
-.praise-note p { margin: 0 0 8px; font-size: 15px; color: #2f3a2a; word-break: keep-all; }
+.praise-to { font-weight: 700; color: #2f4a22; }
+.praise-note p { margin: 0 0 8px; font-size: 14px; color: #2f3a2a; word-break: keep-all; }
 .praise-note .praise-to + p { margin-top: 6px; }
 .praise-note small { color: #789070; font-size: 12px; }
 
 /* 예절 약속 */
 .promise-list { margin: 8px 0 0; padding-left: 22px; text-align: left; }
-.promise-list li { margin: 6px 0; font-size: 17px; font-weight: 850; color: #1f4a35; }
+.promise-list li { margin: 6px 0; font-size: 16px; font-weight: 600; color: #1f4a35; }
 .promise-inputs { display: grid; gap: 8px; margin-top: 14px; text-align: left; }
 .promise-input { display: flex; align-items: center; gap: 8px; }
 .promise-input span {
@@ -3555,7 +3562,7 @@ button {
   border-radius: 50%;
   background: #2f9466;
   color: #fff;
-  font-weight: 900;
+  font-weight: 700;
   display: grid;
   place-items: center;
 }
@@ -3563,7 +3570,7 @@ button {
   flex: 1;
   padding: 10px 12px;
   border: 2px solid #cfe7da;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font: inherit;
 }
 
@@ -3571,7 +3578,7 @@ button {
 .fork-balance {
   margin-top: 12px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: #f7f9fc;
   border: 1px solid #e2e7ee;
   display: grid;
@@ -3580,14 +3587,14 @@ button {
 }
 .fork-balance small { color: #7d899b; margin-top: 4px; }
 .fork-ok { color: #1f7a4d; }
-.fork-warn { color: #c0392b; font-weight: 800; }
+.fork-warn { color: #c0392b; font-weight: 600; }
 
 /* 교사: 관문 퀴즈 편집 */
-.quiz-stage-count { color: #8a96a7; font-size: 13px; font-weight: 700; }
+.quiz-stage-count { color: #8a96a7; font-size: 13px; font-weight: 500; }
 .quiz-edit-item {
   padding: 14px;
   border: 1px solid #e2e7ee;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   background: #fbfcfe;
   margin-top: 12px;
 }
@@ -3597,13 +3604,13 @@ button {
   width: 100%;
   padding: 9px 11px;
   border: 1px solid #d6dee8;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   font: inherit;
 }
 .quiz-edit-choices { display: grid; gap: 6px; margin: 10px 0; }
 .quiz-edit-choice { display: flex; align-items: center; gap: 8px; }
 .quiz-edit-choice input[type="radio"] { width: 18px; height: 18px; accent-color: #1f7a4d; flex: 0 0 auto; }
-.quiz-edit-no { flex: 0 0 18px; color: #8a96a7; font-weight: 900; font-size: 13px; }
+.quiz-edit-no { flex: 0 0 18px; color: #8a96a7; font-weight: 700; font-size: 13px; }
 .small-btn { padding: 6px 10px !important; font-size: 12px !important; }
 .report-praise { padding-left: 18px; line-height: 1.7; }
 
@@ -3632,7 +3639,7 @@ button {
   color: #687089;
   font: inherit;
   font-size: 12px;
-  font-weight: 850;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -3654,7 +3661,7 @@ button {
 .cloud-card {
   width: min(440px, 100%);
   padding: 28px 26px;
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   background: #fff;
   box-shadow: 0 24px 60px rgba(20, 30, 60, .3);
   text-align: center;
@@ -3662,13 +3669,333 @@ button {
 .cloud-mark { font-size: 40px; }
 .cloud-card h2 { margin: 8px 0 10px; color: #243b73; }
 .cloud-card p { color: #687089; line-height: 1.55; font-size: 14px; }
-.cloud-field { display: grid; gap: 6px; margin: 12px 0; text-align: left; font-size: 13px; font-weight: 850; color: #5b6475; }
-.cloud-field input { padding: 11px 13px; border: 2px solid #dce3eb; border-radius: 12px; font: inherit; }
+.cloud-field { display: grid; gap: 6px; margin: 12px 0; text-align: left; font-size: 13px; font-weight: 600; color: #5b6475; }
+.cloud-field input { padding: 11px 13px; border: 2px solid #dce3eb; border-radius: var(--r-md); font: inherit; }
 .cloud-card .primary { width: 100%; margin-top: 6px; }
-.cloud-error { min-height: 20px; margin-top: 10px; color: #c0392b; font-size: 13px; font-weight: 800; }
+.cloud-error { min-height: 20px; margin-top: 10px; color: #c0392b; font-size: 13px; font-weight: 600; }
 .cloud-note { margin-top: 6px; color: #8a96a7; font-size: 12px; line-height: 1.5; }
 .cloud-actions { display: grid; gap: 8px; margin-top: 14px; }
 .cloud-info p { margin: 4px 0; }
 @media (max-width: 720px) {
   .cloud-pill { font-size: 11px; padding: 6px 9px; margin-right: 6px; }
+}
+
+
+/* ==========================================================
+   15. 통일 규칙 (맨 아래에 있어서 위 규칙보다 우선해요)
+   방향: 단정하게. 바탕은 한 가지 색, 카드는 흰 바탕에 가는 선,
+   그림자·그라데이션·장식은 빼고, 강조색은 남색 하나만 써요.
+   되돌리려면 이 구역만 지우면 돼요.
+   ========================================================== */
+
+/* --- 공통 --- (남색 지도 카드는 그대로 둬요) */
+.panel:not(.journey) {
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.primary,
+.move-main-btn {
+  background: var(--navy);
+  box-shadow: none;
+  font-weight: 700;
+}
+.primary:hover,
+.move-main-btn:hover {
+  background: #1f3464;
+}
+.move-main-btn {
+  border-radius: var(--r-md);
+}
+.secondary {
+  border-color: var(--line);
+  color: var(--ink);
+  font-weight: 600;
+}
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+/* 카드 제목: 어느 카드든 같은 크기·색 */
+.pocket-title,
+.used-places-title,
+.bus-head h2,
+.adventure-command-card h2,
+.backpack-head h3,
+.praise-board-head h3,
+.promise-card .praise-board-head h3,
+.castle-shop-head h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--title);
+}
+.teacher-page-head h2,
+.cloud-card h2,
+.adventure-event-body h2,
+.modal-head h2 {
+  color: var(--title);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+/* --- 상단 바 --- */
+.topbar {
+  max-width: var(--content);
+  margin-left: auto;
+  margin-right: auto;
+}
+.app:has(#teacherView:not(.hidden)) .topbar {
+  max-width: none;
+}
+.brand-copy h1 {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.brand-copy p {
+  color: var(--muted);
+  font-weight: 500;
+}
+.main-tabs {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 3px;
+  gap: 2px;
+}
+.main-tab {
+  border-radius: 7px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.main-tab.active {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: none;
+}
+.cloud-pill {
+  border-radius: var(--r-sm);
+  font-weight: 600;
+}
+
+/* --- 홈: 소개 영역 (카드 대신 페이지 머리글로) --- */
+.hero {
+  background: none;
+  border: 0;
+  padding: 14px 2px 4px;
+  overflow: visible;
+}
+.hero:after {
+  display: none;
+}
+.day-pill {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+.hero h1 {
+  margin: 8px 0 8px;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.hero p {
+  color: var(--muted);
+  font-weight: 500;
+}
+.goal-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  color: var(--ink);
+}
+.goal-label {
+  color: var(--muted);
+  font-weight: 600;
+}
+.goal-card strong {
+  font-weight: 700;
+}
+
+/* --- 홈: 모험 주머니 --- */
+.bank-summary,
+.used-places-card,
+.bus-panel {
+  padding: 20px;
+}
+.pocket-image-wrap,
+.pocket-bounce-scene {
+  background: var(--bg);
+  border: 0;
+  border-radius: var(--r-lg);
+}
+.numbers,
+.bank-summary .numbers {
+  gap: 0;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.metric,
+.metric.used {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 14px 16px;
+  text-align: left;
+}
+.metric.used {
+  border-left: 1px solid var(--line);
+}
+.metric small,
+.metric.used small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.metric strong {
+  margin-top: 2px;
+  color: var(--navy);
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.metric.used strong {
+  color: var(--muted);
+  font-weight: 700;
+}
+.metric strong,
+.metric.used strong {
+  font-size: 24px;
+  line-height: 1.2;
+  margin-top: 6px;
+}
+.metric strong span {
+  font-size: inherit;
+  font-weight: inherit;
+}
+.target-box {
+  margin-top: 0;
+  padding: 14px 2px 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+.target-prize {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+}
+.target-prize b {
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+}
+.bank-note {
+  margin: 8px 2px 0;
+  text-align: left;
+  color: var(--muted);
+}
+
+/* --- 홈: 포인트 사용한 곳 --- */
+.used-places-box {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  background: none;
+}
+.used-places-empty {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* --- 홈: 모험 버스 --- */
+.bus-head {
+  margin-bottom: 16px;
+  align-items: baseline;
+}
+.bus-head h2 {
+  margin-bottom: 0;
+}
+.bus-head p {
+  color: var(--muted);
+  font-weight: 500;
+}
+.bus-stage {
+  background: var(--bg);
+  border-radius: 56px;
+}
+.bus-legend {
+  margin-top: 14px;
+  color: var(--muted);
+}
+.all-bonus-hint,
+.all-bonus-hint.done {
+  margin-top: 10px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+  text-align: left;
+}
+.all-bonus-hint.done {
+  color: #1f7a4d;
+}
+
+/* --- 선생님 관리 버튼: 화면을 가리지 않게 맨 아래 글자 버튼으로 --- */
+.teacher-entry {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+  margin: -34px auto 28px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  opacity: 1;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.teacher-entry:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* --- 모험 지도: 같은 카드·같은 색으로만 맞춰요 --- */
+.adventure-command-card,
+.adventure-backpack-card,
+.praise-board-card,
+.promise-card,
+.castle-shop-card {
+  background: #fff !important;
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.journey {
+  box-shadow: none;
+}
+.praise-total {
+  color: var(--muted);
+}
+.praise-filter {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
 }
