@@ -6,7 +6,7 @@
   --bg: #f3f5f8;
   --panel: #fff;
   --ink: #1b2540;
-  --muted: #677489;
+  --muted: #5f6b80;
   --line: #dbe1ea;
   --navy: #27407a;
   --navy2: #314983;
@@ -3783,11 +3783,10 @@ select:focus-visible {
   font-weight: 600;
 }
 
-/* --- 홈: 소개 영역 (카드 대신 페이지 머리글로) --- */
+/* --- 홈: 오늘 (다른 카드와 같은 흰 카드. 목표는 카드 속 카드 대신 줄 하나로 구분) --- */
 .hero {
-  background: none;
-  border: 0;
-  padding: 14px 2px 4px;
+  background: #fff;
+  padding: 22px 20px 20px;
   overflow: visible;
 }
 .hero:after {
@@ -3799,10 +3798,11 @@ select:focus-visible {
   border-radius: 0;
   padding: 0;
   color: var(--muted);
+  font-size: 14px;
   font-weight: 600;
 }
 .hero h1 {
-  margin: 8px 0 8px;
+  margin: 6px 0 8px;
   color: var(--ink);
   font-weight: 800;
   letter-spacing: -.03em;
@@ -3812,48 +3812,62 @@ select:focus-visible {
   font-weight: 500;
 }
 .goal-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 16px 18px;
+  margin-top: 18px;
+  padding: 16px 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
   color: var(--ink);
 }
 .goal-label {
+  margin-bottom: 4px;
   color: var(--muted);
+  font-size: 13px;
   font-weight: 600;
 }
 .goal-card strong {
+  font-size: 20px;
   font-weight: 700;
+  line-height: 1.4;
 }
 
-/* --- 홈: 모험 주머니 --- */
-.bank-summary,
-.used-places-card,
+/* --- 홈: 모험 주머니 (포인트에 관한 것을 카드 하나에 모아요) --- */
+.home-left-stack {
+  display: block;
+  height: 100%;
+}
+.bank-summary {
+  height: 100%;
+  padding: 20px;
+}
 .bus-panel {
   padding: 20px;
 }
+/* 그림은 카드 양 끝까지 닿는 띠로: 잘린 상자처럼 보이지 않게 */
 .pocket-image-wrap,
 .pocket-bounce-scene {
-  background: var(--bg);
+  margin: 4px -20px 0;
   border: 0;
-  border-radius: var(--r-lg);
+  border-radius: 0;
+  background: none;
 }
 .numbers,
 .bank-summary .numbers {
   gap: 0;
-  margin-top: 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
+  margin-top: 18px;
+  border: 0;
 }
 .metric,
 .metric.used {
   background: none;
   border: 0;
   border-radius: 0;
-  padding: 14px 16px;
+  padding: 0;
   text-align: left;
 }
 .metric.used {
+  padding-left: 20px;
   border-left: 1px solid var(--line);
 }
 .metric small,
@@ -3862,31 +3876,35 @@ select:focus-visible {
   font-size: 13px;
   font-weight: 600;
 }
-.metric strong {
+.metric strong,
+.metric.used strong {
   margin-top: 2px;
-  color: var(--navy);
+  font-size: 30px;
+  line-height: 1.15;
   font-weight: 800;
   letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
 .metric.used strong {
   color: var(--muted);
   font-weight: 700;
 }
-.metric strong,
-.metric.used strong {
-  font-size: 24px;
-  line-height: 1.2;
-  margin-top: 6px;
-}
 .metric strong span {
   font-size: inherit;
   font-weight: inherit;
 }
+.metric strong span + span {
+  margin-left: 2px;
+  font-size: 16px;
+  font-weight: 600;
+}
 .target-box {
-  margin-top: 0;
-  padding: 14px 2px 0;
+  margin-top: 18px;
+  padding: 14px 0 0;
   background: none;
   border: 0;
+  border-top: 1px solid var(--line);
   border-radius: 0;
 }
 .target-prize {
@@ -3895,6 +3913,7 @@ select:focus-visible {
   gap: 12px;
   text-align: left;
   color: var(--muted);
+  font-size: 14px;
   font-weight: 500;
 }
 .target-prize b {
@@ -3903,12 +3922,25 @@ select:focus-visible {
   text-align: right;
 }
 .bank-note {
-  margin: 8px 2px 0;
+  margin: 6px 0 0;
   text-align: left;
   color: var(--muted);
 }
-
-/* --- 홈: 포인트 사용한 곳 --- */
+.used-places-card {
+  display: block;
+  height: auto;
+  min-height: 0;
+  margin-top: 18px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--line);
+}
+.used-places-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
 .used-places-box {
   border: 0;
   border-radius: 0;
@@ -3921,9 +3953,17 @@ select:focus-visible {
   font-weight: 500;
 }
 
+/* 좁은 화면에서는 카드를 내용 높이만큼만 */
+@media (max-width:850px) {
+  .home-left-stack,
+  .bank-summary {
+    height: auto;
+  }
+}
+
 /* --- 홈: 모험 버스 --- */
 .bus-head {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   align-items: baseline;
 }
 .bus-head h2 {
@@ -3934,26 +3974,30 @@ select:focus-visible {
   font-weight: 500;
 }
 .bus-stage {
-  background: var(--bg);
-  border-radius: 56px;
+  background: none;
 }
 .bus-legend {
-  margin-top: 14px;
+  margin-top: 12px;
   color: var(--muted);
 }
 .all-bonus-hint,
 .all-bonus-hint.done {
-  margin-top: 10px;
-  padding: 12px 0 0;
-  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
   border-radius: 0;
   background: none;
-  color: var(--ink);
-  font-weight: 600;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
   text-align: left;
 }
 .all-bonus-hint.done {
   color: #1f7a4d;
+  font-weight: 600;
+}
+::selection {
+  background: #cfdcf7;
 }
 
 /* --- 선생님 관리 버튼: 화면을 가리지 않게 맨 아래 글자 버튼으로 --- */
