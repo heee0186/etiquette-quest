@@ -127,7 +127,7 @@
         goalLabel: '우리 공동 목표',
         availableLabel: '모은 포인트',
         usedLabel: '사용한 포인트',
-        pocketNote: '기록으로 모은 포인트는 다음 수업시간에 다같이 사용해요.',
+        pocketNote: '포인트는 버스 연료로도 쓰고, 상인과 보물창고에서 물건을 살 때도 써요. 다음 수업시간에 다같이 사용해요.',
         busTitle: '모험 버스',
         busHint: '내 좌석을 눌러 오늘의 기록을 시작해요.',
         prizeLabel: '완주 보상',
@@ -900,6 +900,8 @@
         const fuelEl = $('fuelLevel');
         if (fuelEl) fuelEl.style.transform = `scaleY(${Math.min(1, fuelMoves / 5)})`;
         const fuelLabel = $('fuelCanLabel');
+        const fuelMovesEl = $('fuelMoves');
+        if (fuelMovesEl) fuelMovesEl.textContent = `연료로 버스 ${Math.floor(fuelMoves)}칸`;
         if (fuelLabel) fuelLabel.textContent = `버스 연료통: 버스가 ${Math.floor(fuelMoves)}칸 갈 수 있는 연료가 있어요`;
         $('adventureAvailable').textContent = available();
         renderUsageHistory();

@@ -4094,3 +4094,12 @@ select:focus-visible {
     transition: none;
   }
 }
+
+/* 포인트 숫자 아래: 같은 포인트를 연료로 읽은 값 */
+.fuel-moves {
+  display: block;
+  margin-top: 2px;
+  color: #22804a;
+  font-size: 13px;
+  font-weight: 600;
+}
