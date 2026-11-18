@@ -1630,8 +1630,9 @@
     function showMerchant() { state.adventure.merchantPending = true; save(); renderMerchantPopup(); }
     function renderMerchantPopup() {
         const offers = [...SHOP].sort(() => Math.random() - .5).slice(0, Math.min(3, SHOP.length));
-        const items = offers.map(it => { const price = shopPrice(it.key, it.price); return `<button class="merchant-item" data-merchant-buy="${it.key}"><span class="merchant-icon">${it.icon}</span><b>${it.name}</b><small>${it.desc}</small><span class="merchant-price">${price}P</span></button>`; }).join('');
-        showEventPopup(iconHTML('merchant', 'lg'), '길거리 상인을 만났다!', `"좋은 물건이 들어왔어요. 구경하고 가세요!"<div class="merchant-grid">${items}</div><div class="event-note">필요한 물건 하나만 골라 사고, 그냥 지나가도 괜찮아요.</div>`, `<button class="secondary" id="leaveMerchantBtn">그냥 지나간다</button>`);
+        const have = available();
+        const items = offers.map(it => { const price = shopPrice(it.key, it.price); const short = have < price; return `<button class="merchant-item${short ? ' cant-buy' : ''}" data-merchant-buy="${it.key}"${short ? ' aria-disabled="true"' : ''}><span class="merchant-icon">${it.icon}</span><b>${it.name}</b><small>${it.desc}</small><span class="merchant-price">${short ? `<em>${price - have}P 부족</em>` : ''}${price}P</span></button>`; }).join('');
+        showEventPopup(iconHTML('merchant', 'lg'), '길거리 상인을 만났다!', `"좋은 물건이 들어왔어요. 구경하고 가세요!"<div class="merchant-balance">지금 쓸 수 있는 포인트 <b>${have}P</b></div><div class="merchant-grid">${items}</div><div class="event-note">필요한 물건 하나만 골라 사고, 그냥 지나가도 괜찮아요.</div>`, `<button class="secondary" id="leaveMerchantBtn">그냥 지나간다</button>`);
         const modalBox = document.querySelector('#adventureEventModal .adventure-event-modal');
         if (modalBox)
             modalBox.classList.add('merchant-wide');

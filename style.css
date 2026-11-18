@@ -4246,3 +4246,159 @@ select:focus-visible {
     white-space: nowrap;
   }
 }
+
+/* --- 모험 지도의 큰 버튼: 갈림길·상인 상태도 같은 남색, 마우스를 올려도 글씨가 보이게 --- */
+.move-main-btn,
+.move-main-btn.fork-btn,
+.move-main-btn.merchant-btn {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: none;
+}
+.move-main-btn:hover,
+.move-main-btn.fork-btn:hover,
+.move-main-btn.merchant-btn:hover {
+  background: #1f3464;
+  color: #fff;
+}
+
+/* --- 이벤트 창(상인·갈림길·보물상자·퀴즈) 안쪽 --- */
+.mystery-merchant-modal .adventure-event-body {
+  background: #fff;
+}
+.adventure-event-actions button {
+  border-width: 1px;
+  border-radius: var(--r-md);
+  box-shadow: none;
+  transition: background-color .15s, border-color .15s;
+}
+.adventure-event-actions .primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  box-shadow: none;
+}
+.adventure-event-actions .primary:hover {
+  background: #1f3464;
+  border-color: #1f3464;
+}
+.adventure-event-actions .secondary {
+  background: #fff;
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: none;
+}
+.adventure-event-actions .secondary:hover {
+  background: #f3f6fb;
+  border-color: #c9d3e1;
+}
+.adventure-event-actions button:hover,
+.adventure-event-actions button:active {
+  transform: none;
+  box-shadow: none;
+}
+.adventure-event-actions button:active {
+  background-color: #e8eef7;
+}
+.adventure-event-actions .primary:active {
+  background-color: #1a2c55;
+}
+
+/* 상인 물건 카드: 같은 흰 카드, 고를 때만 남색 테두리 */
+.merchant-balance {
+  display: flex;
+  width: fit-content;
+  align-items: baseline;
+  gap: 6px;
+  margin: 14px auto 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #eaf0fb;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 600;
+}
+.merchant-balance b {
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.merchant-item {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: none;
+  transition: border-color .15s, background-color .15s;
+}
+.merchant-item:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--navy);
+  background: #f7f9fd;
+}
+.merchant-item:active {
+  transform: none;
+  box-shadow: none;
+  background: #eef3fb;
+}
+.merchant-item b {
+  color: var(--ink);
+  font-weight: 700;
+}
+.merchant-item small {
+  color: var(--muted);
+}
+.merchant-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 12px;
+  background: var(--navy);
+  box-shadow: none;
+  color: #fff;
+  font-weight: 700;
+}
+.merchant-price em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffd2c9;
+}
+.merchant-item.cant-buy {
+  opacity: 1;
+  background: #f6f8fb;
+}
+.merchant-item.cant-buy:hover {
+  border-color: var(--line);
+  background: #f6f8fb;
+}
+.merchant-item.cant-buy .merchant-icon,
+.merchant-item.cant-buy b,
+.merchant-item.cant-buy small {
+  opacity: .55;
+}
+.merchant-item.cant-buy .merchant-price {
+  background: #c3ccd8;
+}
+.merchant-item.cant-buy .merchant-price em {
+  color: #fff;
+}
+.event-note {
+  border-radius: var(--r-md);
+}
+
+/* 보물상자 열기 버튼도 같은 남색 */
+.chest-open-btn {
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--navy);
+  color: #fff;
+  box-shadow: none;
+}
+.chest-open-btn:hover {
+  background: #1f3464;
+}
+.chest-open-btn:active {
+  transform: none;
+  box-shadow: none;
+}
