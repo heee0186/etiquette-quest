@@ -1089,16 +1089,35 @@
         const bonus = checkAllSubmitBonus(rec.date);
         return { student: s, newBadges, bonus, pts };
     }
-    function animateToBank(pts) { const from = { x: window.innerWidth / 2, y: window.innerHeight / 2 }; const target = $('bankTarget').getBoundingClientRect(); for (let i = 0; i < 4; i++) {
-        const d = document.createElement('div');
-        d.className = 'fly-point';
-        d.textContent = '+' + Math.round(pts / 4);
-        d.style.left = (from.x - 15 + (i - 1.5) * 16) + 'px';
-        d.style.top = (from.y - 15) + 'px';
-        document.body.appendChild(d);
-        requestAnimationFrame(() => { d.style.left = (target.left + target.width * .35 + i * 18) + 'px'; d.style.top = (target.top + target.height * .46) + 'px'; d.style.transform = 'scale(.55)'; d.style.opacity = '.25'; });
-        setTimeout(() => d.remove(), 920);
-    } }
+    function animateToBank(pts) {
+        const can = document.querySelector('.fuel-can');
+        const box = (can || $('bankTarget')).getBoundingClientRect();
+        // 연료통 그림(320×300) 안 주입구 위치
+        const to = can ? { x: box.left + box.width * (244 / 320), y: box.top + box.height * (74 / 300) }
+                       : { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+        const from = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        const n = 4, each = Math.max(1, Math.round(pts / n));
+        for (let i = 0; i < n; i++) {
+            const d = document.createElement('div');
+            d.className = 'fly-point';
+            d.textContent = '+' + each;
+            d.style.left = (from.x - 15 + (i - 1.5) * 34) + 'px';
+            d.style.top = (from.y - 15) + 'px';
+            d.style.transitionDelay = (i * 70) + 'ms';
+            document.body.appendChild(d);
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                d.style.left = (to.x - 15) + 'px';
+                d.style.top = (to.y - 15) + 'px';
+                d.classList.add('arrive');
+            }));
+            setTimeout(() => d.remove(), 1100 + i * 70);
+        }
+        if (can) setTimeout(() => {
+            can.classList.remove('fuel-hit');
+            void can.getBoundingClientRect();
+            can.classList.add('fuel-hit');
+        }, 760);
+    }
     function showSuccess(s, newBadges, bonus = 0, wrotePraise = false) { const b = newBadges.map(k => `<div class="new-badge">${BADGES[k].icon} ${BADGES[k].name}<small>${BADGES[k].desc}</small></div>`).join(''); const bonusHtml = bonus ? `<div class="all-bonus-banner">🎉 오늘 우리 반 <b>모두</b>가 기록을 마쳤어요!<br>함께해서 받은 보너스 <b>+${bonus}P</b></div>` : ''; const praiseHtml = wrotePraise ? `<p class="praise-sent">🌱 발견한 좋은 행동이 쪽지함에 붙었어요.</p>` : ''; $('successBody').innerHTML = `<div class="success-icon">${iconHTML('backpack', 'lg')}</div><h2>오늘의 기록 완료!</h2><p>우리 반 버스 연료통을 채웠어요.</p>${praiseHtml}${bonusHtml}${b ? `<div class="new-badges"><b>🎉 새 배지를 얻었어요!</b>${b}</div>` : ''}<div style="margin-top:18px"><button class="primary" id="successClose">확인</button></div>`; $('successClose').onclick = () => modal('successModal', false); modal('successModal', true); }
     // ============================================================
     // 9. 모험 지도 화면 그리기

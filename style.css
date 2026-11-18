@@ -4103,3 +4103,146 @@ select:focus-visible {
   font-size: 13px;
   font-weight: 600;
 }
+
+/* --- 상단 제목: 표지를 붙여 자리를 잡아요 --- */
+.brand-mark {
+  display: block !important;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.brand-mark svg {
+  display: block;
+}
+@media (max-width:850px) {
+  .brand-mark,
+  .brand-mark svg {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* --- 오늘 카드: 날짜·활동 상태를 작은 배지로 --- */
+.hero .day-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 9px;
+  border-radius: 999px;
+  background: #eaf0fb;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
+}
+.hero .day-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .7;
+}
+
+/* --- 연료통: 평소엔 가만히, 포인트가 들어오면 살짝 흔들려요 --- */
+.pocket-bounce-scene .pocket-bag,
+.pocket-bounce-scene .pocket-shadow {
+  animation: none;
+}
+.pocket-bounce-scene .pocket-bag {
+  width: min(56%, 230px);
+  bottom: 24px;
+}
+.pocket-bounce-scene .pocket-shadow {
+  bottom: 30px;
+  width: 34%;
+  height: 16px;
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(39,64,122,.22) 0%, rgba(39,64,122,.10) 50%, rgba(39,64,122,0) 75%);
+}
+.fuel-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.pocket-bounce-scene .pocket-shadow {
+  z-index: 1;
+}
+.fuel-can.fuel-hit {
+  animation: fuelHit .62s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes fuelHit {
+  0%   { transform: translateX(-50%) rotate(0deg) scale(1); }
+  15%  { transform: translateX(-50%) rotate(-5deg) scale(1.04, .96); }
+  35%  { transform: translateX(-50%) rotate(4deg) scale(1); }
+  55%  { transform: translateX(-50%) rotate(-2.5deg); }
+  75%  { transform: translateX(-50%) rotate(1.2deg); }
+  100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+/* 눈금은 포인트가 도착할 즈음 차올라요 */
+.fuel-level {
+  transition-delay: .6s;
+}
+
+/* 날아드는 포인트: 별 동전처럼, 주입구로 쏙 들어가요 */
+.fly-point {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #c89322;
+  background: #ffd86d;
+  color: #5b3d00;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(39,64,122,.18);
+  transition: left .68s cubic-bezier(.5,0,.75,0), top .68s cubic-bezier(.2,.6,.35,1), transform .68s ease-in, opacity .2s ease-in .52s;
+}
+.fly-point.arrive {
+  transform: scale(.35);
+  opacity: 0;
+}
+@media (prefers-reduced-motion:reduce) {
+  .fuel-can.fuel-hit {
+    animation: none;
+  }
+  .fuel-level {
+    transition-delay: 0s;
+  }
+  .fly-point {
+    display: none;
+  }
+}
+
+/* --- 휴대폰 상단: 제목 한 줄, 홈/모험 지도 탭은 아랫줄에 꽉 차게 --- */
+@media (max-width:560px) {
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand {
+    flex: 1 1 0;
+  }
+  .brand-copy h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cloud-pill {
+    margin-right: 0;
+  }
+  .main-tabs {
+    order: 3;
+    width: 100%;
+  }
+  .main-tab {
+    flex: 1;
+    white-space: nowrap;
+  }
+}
