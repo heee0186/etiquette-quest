@@ -895,10 +895,15 @@
         $('busHint').textContent = UI_TEXT.busHint;
         $('homeAvailable').textContent = available();
         $('homeUsed').textContent = state.bank.used;
-        // 연료통 눈금: 한 칸 = 버스 1칸 이동, 다섯 칸이면 가득
+        // 연료통 눈금: 눈금 한 칸 = 학생 한 명의 기록, 반 전체가 하루 기록하면 가득
         const fuelMoves = available() / baseMoveCost();
+        const fuelSlots = Math.max(1, Math.min(12, state.students.filter(s => s.active !== false).length));
+        const fuelPerSlot = Math.max(1, Number(state.settings.recordPoints) || 20);
         const fuelEl = $('fuelLevel');
-        if (fuelEl) fuelEl.style.transform = `scaleY(${Math.min(1, fuelMoves / 5)})`;
+        if (fuelEl) fuelEl.style.transform = `scaleY(${Math.min(1, available() / (fuelSlots * fuelPerSlot))})`;
+        const fuelYs = Array.from({ length: fuelSlots - 1 }, (_, i) => (148 + 106 * (i + 1) / fuelSlots).toFixed(1));
+        if ($('fuelDividers')) $('fuelDividers').setAttribute('d', fuelYs.map(y => `M222 ${y} H234`).join(' '));
+        if ($('fuelTicks')) $('fuelTicks').setAttribute('d', fuelYs.map(y => `M205 ${y} H213`).join(' '));
         const fuelLabel = $('fuelCanLabel');
         const fuelMovesEl = $('fuelMoves');
         if (fuelMovesEl) {
