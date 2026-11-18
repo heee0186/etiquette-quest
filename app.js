@@ -901,7 +901,11 @@
         if (fuelEl) fuelEl.style.transform = `scaleY(${Math.min(1, fuelMoves / 5)})`;
         const fuelLabel = $('fuelCanLabel');
         const fuelMovesEl = $('fuelMoves');
-        if (fuelMovesEl) fuelMovesEl.textContent = `연료로 버스 ${Math.floor(fuelMoves)}칸`;
+        if (fuelMovesEl) {
+            const moves = Math.floor(fuelMoves);
+            const need = baseMoveCost() - (available() % baseMoveCost());
+            fuelMovesEl.textContent = moves > 0 ? `연료로 버스 ${moves}칸` : `1칸 가려면 ${need}P 더 필요해요`;
+        }
         if (fuelLabel) fuelLabel.textContent = `버스 연료통: 버스가 ${Math.floor(fuelMoves)}칸 갈 수 있는 연료가 있어요`;
         $('adventureAvailable').textContent = available();
         renderUsageHistory();
